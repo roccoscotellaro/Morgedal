@@ -307,48 +307,130 @@
   .divider-label::before{left:0;}
   .divider-label::after{right:0;}
 
+  /* ---------- SCHERMATA DI ACCESSO ---------- */
+  #lock-screen{
+    position:fixed;inset:0;z-index:9999;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(148,80,216,0.12), transparent 60%),
+      var(--bg);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .lock-box{
+    background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-3));
+    border:1px solid var(--border-soft);border-radius:12px;
+    padding:32px 30px;max-width:340px;width:100%;text-align:center;
+  }
+  .lock-box h2{
+    font-family:var(--serif);color:var(--gold-bright);text-transform:uppercase;letter-spacing:1.6px;
+    font-size:20px;margin:0 0 8px;
+  }
+  .lock-box p{color:var(--text-dim);font-size:13px;margin:0 0 18px;}
+  .lock-box input[type=password]{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
+    border-radius:6px;padding:10px 12px;font-size:14px;width:100%;text-align:center;margin-bottom:12px;
+  }
+  .lock-box input:focus{outline:none;border-color:var(--gold);}
+  .lock-box button{
+    background:linear-gradient(180deg, #3a2a12, #241a0c);border:1px solid var(--gold);color:var(--gold-bright);
+    border-radius:8px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;width:100%;
+  }
+  .lock-box button:hover{opacity:0.9;}
+  .lock-error{color:#ff9d90;font-size:12px;margin-top:10px;min-height:14px;}
+
   /* ---------- STAMPA PULITA ---------- */
   @media print{
-    @page{ margin:14mm; }
-    body{ background:#fff !important; color:#111 !important; padding-bottom:0 !important; }
+    @page{ margin:10mm; }
+    body{ background:#fff !important; color:#111 !important; padding-bottom:0 !important; font-size:11px !important; }
     .tabbar, .savebar, .hero-hint, #hero-image-input, #import-input,
     .thumb, .thumb-placeholder, .file-btn, .img-remove, .img-row,
-    .inv-remove, #inv-add, #reset-slots, #reset-risorse{ display:none !important; }
+    .inv-remove, #inv-add, #reset-slots, #reset-risorse, #lock-screen{ display:none !important; }
+    .wrap{ padding:12px 0 !important; max-width:100% !important; }
     .hero{
-      background:none !important; padding:6px 0 14px !important; border-bottom:2px solid #111 !important;
+      background:none !important; padding:2px 0 8px !important; border-bottom:2px solid #111 !important;
       cursor:default !important;
     }
-    .editable-name{ color:#000 !important; text-shadow:none !important; border:none !important; }
-    .hero-sub{ color:#444 !important; }
-    .hero-chip{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; backdrop-filter:none !important; }
+    .hero-inner{ align-items:baseline !important; gap:8px !important; }
+    .editable-name{ color:#000 !important; text-shadow:none !important; border:none !important; font-size:26px !important; }
+    .hero-sub{ color:#444 !important; font-size:11px !important; margin-top:2px !important; }
+    .hero-chip{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; backdrop-filter:none !important; padding:2px 9px !important; font-size:10.5px !important; }
     .hero-chip b{ color:#000 !important; }
+    .hero-meta{ gap:6px !important; }
+
     .panel{ display:block !important; }
-    .card, .subcard{ background:#fff !important; border:1px solid #999 !important; box-shadow:none !important; page-break-inside:avoid; break-inside:avoid; }
-    .card h2{ color:#000 !important; border-bottom:1px solid #999 !important; }
+    .card, .subcard{
+      background:#fff !important; border:1px solid #999 !important; box-shadow:none !important;
+      page-break-inside:avoid; break-inside:avoid;
+      padding:8px 10px !important; margin-bottom:6px !important; border-radius:5px !important;
+    }
+    .card h2{ color:#000 !important; border-bottom:1px solid #999 !important; font-size:10.5px !important; margin:0 0 6px !important; padding-bottom:3px !important; letter-spacing:.6px !important; }
     .card h2 small{ display:none !important; }
-    input, textarea, select{ color:#000 !important; background:transparent !important; border:none !important; }
-    .rich{ background:#fff !important; border:1px solid #ccc !important; color:#000 !important; }
+    input, textarea, select{ color:#000 !important; background:transparent !important; border:none !important; font-size:11px !important; padding:2px 3px !important; }
+    .rich{ background:#fff !important; border:1px solid #ccc !important; color:#000 !important; padding:6px 8px !important; font-size:10.5px !important; line-height:1.4 !important; }
     .rich b, .rich strong{ color:#000 !important; }
-    .abil-box, .statpill, .skill-abbr, .equip-slot, .note-entry{ background:#fff !important; border:1px solid #ccc !important; }
-    .abil-box .name, .abil-box .mod, .statpill label, .statpill input{ color:#000 !important; }
-    .save-row .modbadge{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; }
+
+    /* forza colonne compatte indipendentemente dal breakpoint a schermo */
+    .grid{ gap:5px !important; }
+    .grid-6{ grid-template-columns:repeat(6,1fr) !important; }
+    .grid-4{ grid-template-columns:repeat(4,1fr) !important; }
+    .grid-3{ grid-template-columns:repeat(3,1fr) !important; }
+    .grid-2{ grid-template-columns:repeat(2,1fr) !important; }
+
+    /* caratteristiche: molto più compatte */
+    .abil-box{ background:#fff !important; border:1px solid #ccc !important; padding:4px 2px !important; }
+    .abil-box .name{ color:#000 !important; font-size:8.5px !important; letter-spacing:.3px !important; }
+    .abil-box input[type=number]{
+      color:#000 !important; background:transparent !important; border:none !important;
+      font-size:13px !important; width:32px !important; margin:2px auto 1px !important; padding:0 !important;
+    }
+    .abil-box .mod{ color:#000 !important; font-size:13px !important; }
+
+    .statpill{ background:#fff !important; border:1px solid #ccc !important; padding:4px 2px !important; }
+    .statpill label{ font-size:8.5px !important; margin-bottom:2px !important; }
+    .statpill input{ color:#000 !important; font-size:12px !important; }
+
+    .save-row, .skill-row{ padding:3px 4px !important; }
+    .save-row .modbadge{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; padding:2px 0 !important; }
     .skill-row input, .inv-table input, .inv-table textarea{ color:#000 !important; }
-    .pip{ border-color:#000 !important; }
+    .skill-abbr{ background:#fff !important; border:1px solid #ccc !important; color:#333 !important; font-size:9px !important; padding:1px 0 !important; }
+
+    .hp-row{ gap:8px !important; }
+    .hp-numbers input{ padding:3px 0 !important; }
+    .pip{ width:15px !important; height:15px !important; border-color:#000 !important; }
     .pip.used{ background:#000 !important; box-shadow:none !important; }
-    .hp-track, .inv-bar{ border:1px solid #000 !important; background:#fff !important; }
+    .hp-track, .inv-bar{ height:12px !important; border:1px solid #000 !important; background:#fff !important; }
     .hp-fill, .inv-bar-fill{ background:#999 !important; }
+
+    .equip-slot{ background:#fff !important; border:1px solid #ccc !important; padding:5px 6px !important; }
+    .equip-slot label{ font-size:8.5px !important; }
+    .equip-slot input{ color:#000 !important; font-size:11px !important; }
+
     .inv-table th, .inv-table td.imgcell, .inv-table th:nth-child(2){ display:none !important; }
+    .inv-table td{ padding:3px 5px !important; }
+    .tracker{ padding:5px 0 !important; }
+    .slot-lvl{ padding:4px 0 !important; }
+
     .portraits, .portrait{ display:none !important; }
-    .divider-label{ color:#444 !important; }
+    .divider-label{ color:#444 !important; margin:10px 0 6px !important; font-size:9.5px !important; }
     .divider-label::before, .divider-label::after{ background:#999 !important; }
-    .subcard .tag{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; }
-    .subcard h3{ color:#000 !important; }
+    .subcard{ padding:6px 8px !important; }
+    .subcard .tag{ background:#fff !important; border:1px solid #999 !important; color:#000 !important; font-size:8.5px !important; padding:1px 7px !important; margin-bottom:4px !important; }
+    .subcard h3{ color:#000 !important; font-size:12px !important; margin:0 0 4px !important; }
     a{ color:#000 !important; text-decoration:underline; }
   }
 
 </style>
 </head>
 <body>
+
+<div id="lock-screen">
+  <div class="lock-box">
+    <h2>Accesso Protetto</h2>
+    <p>Inserisci la password per aprire questa scheda.</p>
+    <input type="password" id="lock-input" placeholder="Password" autocomplete="off">
+    <button id="lock-submit">Sblocca</button>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+</div>
 
 <div class="hero" id="hero">
   <div class="hero-hint">Trascina per riposizionare · <span id="btn-hero-image" style="text-decoration:underline;cursor:pointer;pointer-events:auto;">cambia immagine</span></div>
@@ -671,10 +753,11 @@ async function onGoogleSignedIn(){
     const loadIt = window.confirm("Trovato un salvataggio su Google Drive per questo personaggio.\nVuoi caricarlo (sostituisce la scheda attuale) oppure continuare con quella aperta ora e sovrascrivere Drive?\n\nOK = carica da Drive \u00b7 Annulla = mantieni questa e sovrascrivi Drive");
     if (loadIt){
       await driveLoad();
+      flushSave();
       return;
     }
   }
-  await driveSave();
+  flushSave();
 }
 
 async function driveFind(){
@@ -827,6 +910,7 @@ async function performSave(){
   const stamp = String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0");
   if (wroteSomething){
     lastSaveOk = true;
+    clearStorageWarning();
     const extras = [localFileHandle ? "file locale" : null, googleAccessToken ? "Drive" : null].filter(Boolean).join(" + ");
     setStatus("Salvato \u2713 " + stamp + (extras ? " (" + extras + ")" : ""));
   } else if (cloudFailed){
@@ -845,6 +929,13 @@ function setStorageWarning(){
     status.textContent = "Salvataggio automatico non disponibile qui \u2014 collega un file locale o usa \u2018Esporta backup\u2019";
     status.classList.add("warn-text");
   }
+}
+
+function clearStorageWarning(){
+  const bar = document.getElementById("savebar");
+  const status = document.getElementById("savebar-status");
+  if (bar) bar.classList.remove("warn");
+  if (status) status.classList.remove("warn-text");
 }
 
 /* ============================================================
@@ -877,6 +968,7 @@ async function connectNewLocalFile(){
     localFileHandle = handle;
     await writeLocalFile();
     updateLocalFileStatus();
+    clearStorageWarning();
     setStatus("File locale collegato \u2713");
   }catch(e){
     if (!e || e.name !== "AbortError") window.alert("Non sono riuscito a collegare il file.");
@@ -1765,6 +1857,68 @@ function syncHeroChips(){
 }
 
 /* ============================================================
+   ACCESSO PROTETTO DA PASSWORD
+   Le password non sono salvate in chiaro: qui \u00e8 salvata solo la
+   loro "impronta" (hash SHA-256), che non pu\u00f2 essere riletta al
+   contrario. \u00c8 comunque una protezione leggera pensata per un
+   gruppo privato, non una sicurezza a prova di esperto: chi
+   analizzasse a fondo il codice sorgente potrebbe in teoria
+   provare a indovinare la password offline.
+   ============================================================ */
+const CHAR_SLUG = "aggron";
+const CHAR_PASSWORD_HASH = "628532fd048c3f94900aa04ed880747782a29ae4eac26949d7a88e2557a6d73b";
+const MASTER_PASSWORD_HASH = "c95488e91dbb746dde809ac9806bdcadb59f72c0dbd89f3440aa4f3e3e25688a";
+const LOCK_SESSION_KEY = "morgedal-unlocked::" + CHAR_SLUG;
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function isUnlockedThisSession(){
+  try{ return sessionStorage.getItem(LOCK_SESSION_KEY) === "1"; }catch(e){ return false; }
+}
+function markUnlocked(){
+  try{ sessionStorage.setItem(LOCK_SESSION_KEY, "1"); }catch(e){}
+}
+
+function hideLockScreen(){
+  const el = document.getElementById("lock-screen");
+  if (el) el.style.display = "none";
+}
+
+async function attemptUnlock(){
+  const input = document.getElementById("lock-input");
+  const errorEl = document.getElementById("lock-error");
+  const pw = input ? input.value : "";
+  if (!pw){ if (errorEl) errorEl.textContent = "Inserisci una password."; return; }
+  const hash = await sha256Hex(pw);
+  if (hash === CHAR_PASSWORD_HASH || hash === MASTER_PASSWORD_HASH){
+    markUnlocked();
+    hideLockScreen();
+    init();
+  } else {
+    if (errorEl) errorEl.textContent = "Password errata, riprova.";
+    if (input){ input.value = ""; input.focus(); }
+  }
+}
+
+function initLock(){
+  const noPasswordSet = !CHAR_PASSWORD_HASH && !MASTER_PASSWORD_HASH;
+  if (noPasswordSet || isUnlockedThisSession()){
+    hideLockScreen();
+    init();
+    return;
+  }
+  const submitBtn = document.getElementById("lock-submit");
+  const input = document.getElementById("lock-input");
+  if (submitBtn) submitBtn.addEventListener("click", attemptUnlock);
+  if (input) input.addEventListener("keydown", (e)=>{ if (e.key === "Enter") attemptUnlock(); });
+  if (input) input.focus();
+}
+
+/* ============================================================
    INIT
    ============================================================ */
 async function init(){
@@ -1786,7 +1940,7 @@ async function init(){
   initAutoFlush();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", initLock);
 })();
 
 </script>
