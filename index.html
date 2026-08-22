@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morgedal — Schede dei Personaggi</title>
+<style>
+  :root{
+    --bg:#0f0d0c;
+    --bg-panel:#1b1613;
+    --bg-panel-2:#241d18;
+    --bg-panel-3:#171210;
+    --border:#3d3024;
+    --border-soft:#2a2119;
+    --gold:#c9a34e;
+    --gold-bright:#eecb7c;
+    --violet:#9450d8;
+    --violet-dim:#5c3a86;
+    --text:#ece3d0;
+    --text-dim:#a89880;
+    --text-faint:#7a6c58;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1000px 560px at 15% -10%, rgba(148,80,216,0.12), transparent 60%),
+      radial-gradient(ellipse 1000px 560px at 100% 0%, rgba(201,70,59,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.5;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .hero{
+    padding:56px 24px 34px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+  }
+  .hero h1{
+    font-family:var(--serif);font-weight:700;letter-spacing:3px;text-transform:uppercase;
+    font-size:clamp(30px,5vw,48px);color:var(--gold-bright);margin:0 0 10px;
+    text-shadow:0 2px 0 rgba(0,0,0,0.6), 0 0 26px rgba(148,80,216,0.3);
+  }
+  .hero p{font-family:var(--serif);font-style:italic;color:var(--text-dim);margin:0;font-size:15px;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(240px,1fr));gap:18px;}
+
+  .card{
+    display:block;text-decoration:none;color:inherit;
+    background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-3));
+    border:1px solid var(--border-soft);border-radius:12px;
+    padding:20px;transition:transform .15s, border-color .15s, box-shadow .15s;
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg, var(--violet), var(--gold));
+    opacity:0;transition:opacity .15s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 10px 24px rgba(0,0,0,0.35);}
+  .card:hover::before{opacity:1;}
+  .card .name{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--gold-bright);letter-spacing:.5px;margin-bottom:4px;}
+  .card .subtitle{font-size:13px;color:var(--text-dim);margin-bottom:12px;min-height:34px;}
+  .card .tag{
+    display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--violet);background:rgba(148,80,216,0.12);border:1px solid var(--violet-dim);
+    border-radius:10px;padding:3px 10px;
+  }
+  .card .arrow{position:absolute;bottom:16px;right:18px;color:var(--text-faint);font-size:18px;transition:color .15s, transform .15s;}
+  .card:hover .arrow{color:var(--gold-bright);transform:translateX(3px);}
+
+  .empty-card{
+    border:1px dashed var(--border);border-radius:12px;padding:20px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    color:var(--text-faint);font-size:13px;min-height:120px;
+  }
+
+  .footer-note{margin-top:40px;padding-top:20px;border-top:1px solid var(--border-soft);font-size:12px;color:var(--text-faint);}
+  .footer-note code{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:4px;padding:1px 6px;color:var(--gold-bright);font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Morgedal</h1>
+  <p>Le schede dei personaggi del gruppo</p>
+</div>
+
+<div class="wrap">
+  <div class="grid" id="grid"></div>
+  <div class="footer-note">
+    Per aggiungere un nuovo personaggio: carica il suo file <code>.html</code> in questa stessa cartella su GitHub,
+    poi aggiungi una riga all'elenco <code>CHARACTERS</code> in cima a questo file con nome, sottotitolo e nome del file.
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ELENCO PERSONAGGI
+   Per aggiungere un nuovo personaggio, aggiungi una riga qui:
+   { name: "Nome", subtitle: "Classe — breve descrizione", tag: "Livello X", file: "nomefile.html" }
+   Il file va caricato nella stessa cartella di questo index.
+   ============================================================ */
+const CHARACTERS = [
+  { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html" }
+];
+
+const grid = document.getElementById("grid");
+grid.innerHTML = CHARACTERS.map(c => `
+  <a class="card" href="${encodeURI(c.file)}">
+    <div class="name">${c.name}</div>
+    <div class="subtitle">${c.subtitle || ""}</div>
+    ${c.tag ? `<span class="tag">${c.tag}</span>` : ""}
+    <span class="arrow">→</span>
+  </a>
+`).join("") + `<div class="empty-card">+ Nuovo personaggio<br>(aggiungilo all'elenco CHARACTERS)</div>`;
+</script>
+
+</body>
+</html>
