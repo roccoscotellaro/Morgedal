@@ -82,6 +82,12 @@
 
   .footer-note{margin-top:40px;padding-top:20px;border-top:1px solid var(--border-soft);font-size:12px;color:var(--text-faint);}
   .footer-note code{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:4px;padding:1px 6px;color:var(--gold-bright);font-size:11.5px;}
+  .master-link{
+    display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:11.5px;
+    color:var(--text-faint);text-decoration:none;border-top:1px solid transparent;padding-top:0;
+    opacity:0.6;transition:opacity .15s, color .15s;
+  }
+  .master-link:hover{opacity:1;color:var(--gold-bright);}
 </style>
 </head>
 <body>
@@ -96,6 +102,8 @@
   <div class="footer-note">
     Per aggiungere un nuovo personaggio: carica il suo file <code>.html</code> in questa stessa cartella su GitHub,
     poi aggiungi una riga all'elenco <code>CHARACTERS</code> in cima a questo file con nome, sottotitolo e nome del file.
+    <br>
+    <a class="master-link" href="admin.html">🔒 Accesso Master</a>
   </div>
 </div>
 
