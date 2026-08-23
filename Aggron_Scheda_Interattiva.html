@@ -1876,6 +1876,15 @@ async function sha256Hex(text){
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
 
+const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
+
+function isMasterUnlocked(){
+  try{ return localStorage.getItem(MASTER_UNLOCK_KEY) === "1"; }catch(e){ return false; }
+}
+function markMasterUnlocked(){
+  try{ localStorage.setItem(MASTER_UNLOCK_KEY, "1"); }catch(e){}
+}
+
 function isUnlockedThisSession(){
   try{ return sessionStorage.getItem(LOCK_SESSION_KEY) === "1"; }catch(e){ return false; }
 }
@@ -1894,7 +1903,14 @@ async function attemptUnlock(){
   const pw = input ? input.value : "";
   if (!pw){ if (errorEl) errorEl.textContent = "Inserisci una password."; return; }
   const hash = await sha256Hex(pw);
-  if (hash === CHAR_PASSWORD_HASH || hash === MASTER_PASSWORD_HASH){
+  if (hash === MASTER_PASSWORD_HASH){
+    // La password Master sblocca questa scheda e TUTTE le altre
+    // schede del gruppo (stesso sito), senza richiederla di nuovo.
+    markMasterUnlocked();
+    markUnlocked();
+    hideLockScreen();
+    init();
+  } else if (hash === CHAR_PASSWORD_HASH){
     markUnlocked();
     hideLockScreen();
     init();
@@ -1906,7 +1922,7 @@ async function attemptUnlock(){
 
 function initLock(){
   const noPasswordSet = !CHAR_PASSWORD_HASH && !MASTER_PASSWORD_HASH;
-  if (noPasswordSet || isUnlockedThisSession()){
+  if (noPasswordSet || isUnlockedThisSession() || isMasterUnlocked()){
     hideLockScreen();
     init();
     return;

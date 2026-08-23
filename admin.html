@@ -9,7 +9,8 @@
     --bg:#0f0d0c; --bg-panel:#1b1613; --bg-panel-2:#241d18; --bg-panel-3:#171210;
     --border:#3d3024; --border-soft:#2a2119;
     --gold:#c9a34e; --gold-bright:#eecb7c;
-    --violet:#9450d8;
+    --violet:#9450d8; --violet-dim:#5c3a86;
+    --good:#6f9a63; --bad:#c9463b;
     --text:#ece3d0; --text-dim:#a89880; --text-faint:#7a6c58;
     --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -43,32 +44,52 @@
 
   /* -------- panel -------- */
   #panel{ display:none; }
-  .wrap{ max-width:720px;margin:0 auto;padding:44px 20px 60px; }
+  .wrap{ max-width:760px;margin:0 auto;padding:44px 20px 60px; }
   h1{
     font-family:var(--serif);font-weight:700;letter-spacing:2px;text-transform:uppercase;
     font-size:clamp(26px,4vw,38px);color:var(--gold-bright);margin:0 0 6px;
     text-shadow:0 2px 0 rgba(0,0,0,0.6), 0 0 26px rgba(148,80,216,0.3);
   }
-  .subtitle{ font-family:var(--serif);font-style:italic;color:var(--text-dim);margin:0 0 30px;font-size:14px; }
+  .subtitle{ font-family:var(--serif);font-style:italic;color:var(--text-dim);margin:0 0 8px;font-size:14px; }
+  .master-status{ font-size:11.5px;color:var(--good);margin:0 0 26px; }
 
   .card{
     background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-3));
     border:1px solid var(--border-soft);border-radius:10px;padding:20px;margin-bottom:18px;
   }
-  .card h2{ font-family:var(--serif);font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin:0 0 12px; }
+  .card h2{ font-family:var(--serif);font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px; }
+  .card h2 small{ font-family:var(--sans);text-transform:none;letter-spacing:0;color:var(--text-faint);font-size:11px;font-weight:400; }
   .card p{ color:var(--text-dim);font-size:13px;line-height:1.6;margin:0 0 12px; }
 
   label{ display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-faint);margin-bottom:5px; }
-  input[type=text]{
+  input[type=text], input[type=password]{
     background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
     border-radius:6px;padding:9px 11px;font-size:14px;width:100%;
   }
-  input[type=text]:focus{ outline:none;border-color:var(--gold); }
+  input[type=text]:focus, input[type=password]:focus{ outline:none;border-color:var(--gold); }
+  input[type=color]{
+    width:44px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border-soft);background:var(--bg-panel-2);cursor:pointer;
+  }
+  select{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
+    border-radius:6px;padding:9px 11px;font-size:14px;width:100%;
+  }
+  .grid2{ display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+  .grid3{ display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px; }
+  @media (max-width:560px){ .grid2, .grid3{ grid-template-columns:1fr; } }
+
   button.action{
     background:linear-gradient(180deg, #3a2a12, #241a0c);border:1px solid var(--gold);color:var(--gold-bright);
     border-radius:8px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px;
   }
   button.action:hover{ opacity:0.9; }
+  button.action:disabled{ opacity:0.4;cursor:not-allowed; }
+  button.small{ padding:6px 12px;font-size:11.5px;margin-top:0; }
+  button.secondary{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer;
+  }
+  button.secondary:hover{ border-color:var(--gold);color:var(--gold-bright); }
 
   .result{
     margin-top:14px;background:var(--bg-panel-3);border:1px solid var(--border-soft);border-radius:8px;
@@ -86,6 +107,26 @@
   }
   .copy-btn:hover{ border-color:var(--gold);color:var(--gold-bright); }
   code{ background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:4px;padding:1px 6px;color:var(--gold-bright);font-size:12px; }
+
+  .char-row{
+    display:grid;grid-template-columns:26px 1fr auto auto;gap:10px;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .char-row:last-child{ border-bottom:none; }
+  .char-row .cname{ font-weight:700;color:var(--text); }
+  .char-row .cfile{ font-size:10.5px;color:var(--text-faint);font-family:var(--mono); }
+  .char-pw-row{
+    display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:8px;
+  }
+  .status-line{ font-size:12px;margin-top:10px;min-height:16px; }
+  .status-line.ok{ color:var(--good); }
+  .status-line.err{ color:#ff9d90; }
+  .status-line.busy{ color:var(--text-faint); }
+
+  .token-warning{
+    font-size:11.5px;color:#ffb3a0;background:rgba(201,70,59,0.1);border:1px solid rgba(201,70,59,0.3);
+    border-radius:6px;padding:8px 10px;margin-top:10px;
+  }
 </style>
 </head>
 <body>
@@ -104,30 +145,54 @@
   <div class="wrap">
     <h1>Pannello Master</h1>
     <p class="subtitle">Strumenti per gestire le schede dei personaggi</p>
+    <p class="master-status">🔓 Da questo momento tutte le schede del gruppo su questo browser sono sbloccate, senza dover reinserire alcuna password.</p>
 
     <div class="card">
-      <h2>Genera una password per una scheda</h2>
-      <p>Scrivi la password in chiaro che vuoi assegnare (a un personaggio, o una nuova password Master). Ottieni il codice da incollare nel file di quel personaggio.</p>
+      <h2>Connessione a GitHub <small>necessaria solo per aggiornare password/colori direttamente da qui</small></h2>
+      <p>Serve un <b>Personal Access Token</b> di GitHub con permesso di scrittura su questo repository (scope <code>repo</code>, oppure un token "fine-grained" con permesso Contents: Read & Write sul repo <code>Morgedal</code>). Il token resta solo in questa scheda del browser: non viene salvato da nessuna parte, sparisce chiudendo la finestra.</p>
+      <div class="grid3">
+        <div><label>Proprietario (owner)</label><input type="text" id="gh-owner" value="roccoscotellaro"></div>
+        <div><label>Repository</label><input type="text" id="gh-repo" value="Morgedal"></div>
+        <div><label>Branch</label><input type="text" id="gh-branch" value="main"></div>
+      </div>
+      <div style="margin-top:10px;"><label>Personal Access Token</label><input type="password" id="gh-token" placeholder="ghp_..." autocomplete="off"></div>
+      <button class="action" id="gh-save">Salva connessione</button>
+      <div class="token-warning">⚠️ Non condividere mai questo token. Chiunque lo abbia può modificare tutti i file del repository.</div>
+      <div class="status-line" id="gh-status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Personaggi <small id="char-count"></small></h2>
+      <p>Carica l'elenco da <code>index.html</code> per modificare password e colore identificativo di ciascun personaggio direttamente da qui.</p>
+      <button class="action" id="load-chars">Carica elenco da GitHub</button>
+      <div class="status-line" id="chars-status"></div>
+      <div id="char-list" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Cambia la password Master</h2>
+      <p>Aggiorna la password Master su <b>tutti</b> i personaggi già caricati in elenco, in un colpo solo.</p>
+      <input type="text" id="master-pw-input" placeholder="Nuova password Master" autocomplete="off">
+      <button class="action" id="master-pw-update">Applica a tutti i personaggi</button>
+      <div class="status-line" id="master-pw-status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Genera solo un hash <small>senza toccare GitHub</small></h2>
+      <p>Utile se preferisci incollare tu stesso l'hash a mano, o per un personaggio non ancora nell'elenco.</p>
       <label>Password in chiaro</label>
       <input type="text" id="pw-input" placeholder="es. Mario-Nano-14" autocomplete="off">
       <br><button class="action" id="pw-generate">Genera hash</button>
       <div class="result" id="pw-result">
-        <label>Hash da incollare</label>
+        <label>Hash</label>
         <div class="hash-box" id="pw-hash"></div>
         <button class="copy-btn" id="pw-copy">Copia</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>Dove incollarlo</h2>
-      <p>Apri il file <code>.html</code> del personaggio su GitHub (matita "Edit"), cerca questa riga vicino all'inizio dello script:</p>
-      <p><code>const CHAR_PASSWORD_HASH = "...";</code></p>
-      <p>Sostituisci il testo tra virgolette con l'hash appena generato, poi salva (Commit changes). Per cambiare invece la <b>password Master</b> — quella che apre tutte le schede — genera l'hash allo stesso modo, ma va sostituito nella riga <code>const MASTER_PASSWORD_HASH = "...";</code> <b>in ogni singolo file di personaggio</b>, uno per uno: ogni scheda tiene la propria copia, non è un valore condiviso automaticamente.</p>
-    </div>
-
-    <div class="card">
       <h2>Nuovo personaggio</h2>
-      <p>Per una scheda nuova, genera qui la password che vuoi dargli, e passa a Claude il file di partenza insieme a quell'hash: lo inserisce lui al posto giusto nel nuovo file.</p>
+      <p>Per una scheda nuova, genera qui la password che vuoi dargli, e passa a Claude il file di partenza insieme a quell'hash: lo inserisce lui al posto giusto nel nuovo file. Una volta caricato su GitHub, ricarica l'elenco qui sopra per poterlo gestire.</p>
     </div>
   </div>
 </div>
@@ -135,6 +200,7 @@
 <script>
 const MASTER_PASSWORD_HASH = "c95488e91dbb746dde809ac9806bdcadb59f72c0dbd89f3440aa4f3e3e25688a";
 const SESSION_KEY = "morgedal-admin-unlocked";
+const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
 
 async function sha256Hex(text){
   const enc = new TextEncoder().encode(text);
@@ -154,7 +220,10 @@ async function attemptUnlock(){
   if (!pw){ err.textContent = "Inserisci la password."; return; }
   const hash = await sha256Hex(pw);
   if (hash === MASTER_PASSWORD_HASH){
-    try{ sessionStorage.setItem(SESSION_KEY, "1"); }catch(e){}
+    try{
+      sessionStorage.setItem(SESSION_KEY, "1");
+      localStorage.setItem(MASTER_UNLOCK_KEY, "1"); // sblocca anche tutte le altre schede
+    }catch(e){}
     showPanel();
   } else {
     err.textContent = "Password errata.";
@@ -167,8 +236,14 @@ document.getElementById("lock-input").addEventListener("keydown", (e)=>{ if(e.ke
 
 let unlocked = false;
 try{ unlocked = sessionStorage.getItem(SESSION_KEY) === "1"; }catch(e){}
-if (unlocked){ showPanel(); } else { document.getElementById("lock-input").focus(); }
+if (unlocked){
+  try{ localStorage.setItem(MASTER_UNLOCK_KEY, "1"); }catch(e){}
+  showPanel();
+} else {
+  document.getElementById("lock-input").focus();
+}
 
+/* ---------- Generatore hash semplice ---------- */
 document.getElementById("pw-generate").addEventListener("click", async ()=>{
   const val = document.getElementById("pw-input").value;
   if (!val) return;
@@ -183,6 +258,217 @@ document.getElementById("pw-copy").addEventListener("click", ()=>{
     const old = btn.textContent; btn.textContent = "Copiato!";
     setTimeout(()=>{ btn.textContent = old; }, 1500);
   });
+});
+
+/* ============================================================
+   CONNESSIONE GITHUB
+   ============================================================ */
+const REPO_CONFIG_KEY = "morgedal-admin-repo-config";
+let GH_TOKEN = "";
+try{ GH_TOKEN = sessionStorage.getItem("morgedal-admin-token") || ""; }catch(e){}
+
+function loadRepoConfig(){
+  try{
+    const raw = localStorage.getItem(REPO_CONFIG_KEY);
+    if (raw){
+      const cfg = JSON.parse(raw);
+      if (cfg.owner) document.getElementById("gh-owner").value = cfg.owner;
+      if (cfg.repo) document.getElementById("gh-repo").value = cfg.repo;
+      if (cfg.branch) document.getElementById("gh-branch").value = cfg.branch;
+    }
+  }catch(e){}
+  if (GH_TOKEN) document.getElementById("gh-token").value = GH_TOKEN;
+}
+loadRepoConfig();
+
+function getRepoConfig(){
+  return {
+    owner: document.getElementById("gh-owner").value.trim(),
+    repo: document.getElementById("gh-repo").value.trim(),
+    branch: document.getElementById("gh-branch").value.trim() || "main"
+  };
+}
+
+document.getElementById("gh-save").addEventListener("click", ()=>{
+  const cfg = getRepoConfig();
+  try{ localStorage.setItem(REPO_CONFIG_KEY, JSON.stringify(cfg)); }catch(e){}
+  GH_TOKEN = document.getElementById("gh-token").value.trim();
+  try{ sessionStorage.setItem("morgedal-admin-token", GH_TOKEN); }catch(e){}
+  setStatus("gh-status", GH_TOKEN ? "Connessione salvata per questa sessione." : "Impostazioni salvate (nessun token inserito).", "ok");
+});
+
+function setStatus(elId, msg, type){
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = "status-line" + (type ? " " + type : "");
+}
+
+function b64EncodeUnicode(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64DecodeUnicode(str){
+  return decodeURIComponent(escape(atob(str)));
+}
+
+async function ghGetFile(path){
+  const {owner, repo, branch} = getRepoConfig();
+  if (!GH_TOKEN) throw new Error("Nessun token configurato. Salva prima la connessione a GitHub.");
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+  const res = await fetch(url, {
+    headers: { "Authorization": "token " + GH_TOKEN, "Accept": "application/vnd.github+json" }
+  });
+  if (!res.ok){
+    const t = await res.text().catch(()=> "");
+    throw new Error(`Lettura di ${path} fallita (HTTP ${res.status}). ${t}`);
+  }
+  const data = await res.json();
+  const content = b64DecodeUnicode(data.content.replace(/\n/g, ""));
+  return { content, sha: data.sha };
+}
+
+async function ghPutFile(path, newContent, sha, message){
+  const {owner, repo, branch} = getRepoConfig();
+  if (!GH_TOKEN) throw new Error("Nessun token configurato. Salva prima la connessione a GitHub.");
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Authorization": "token " + GH_TOKEN,
+      "Accept": "application/vnd.github+json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: message || `Aggiornamento da Pannello Master: ${path}`,
+      content: b64EncodeUnicode(newContent),
+      sha: sha,
+      branch: branch
+    })
+  });
+  if (!res.ok){
+    const t = await res.text().catch(()=> "");
+    throw new Error(`Scrittura di ${path} fallita (HTTP ${res.status}). ${t}`);
+  }
+  return res.json();
+}
+
+/* ============================================================
+   ELENCO PERSONAGGI (letto da index.html)
+   ============================================================ */
+let CHAR_LIST = [];
+
+document.getElementById("load-chars").addEventListener("click", async ()=>{
+  setStatus("chars-status", "Caricamento in corso\u2026", "busy");
+  try{
+    const { content } = await ghGetFile("index.html");
+    const match = content.match(/const CHARACTERS = (\[[\s\S]*?\]);/);
+    if (!match) throw new Error("Non trovo l'elenco CHARACTERS dentro index.html.");
+    CHAR_LIST = new Function("return " + match[1])();
+    renderCharList();
+    setStatus("chars-status", `Caricati ${CHAR_LIST.length} personaggi.`, "ok");
+  }catch(e){
+    setStatus("chars-status", e.message, "err");
+  }
+});
+
+function renderCharList(){
+  const box = document.getElementById("char-list");
+  document.getElementById("char-count").textContent = CHAR_LIST.length ? `(${CHAR_LIST.length} caricati)` : "";
+  box.innerHTML = CHAR_LIST.map((c, i) => `
+    <div class="char-row">
+      <input type="color" data-color-idx="${i}" value="${c.color || '#c9a34e'}">
+      <div>
+        <div class="cname">${c.name}</div>
+        <div class="cfile">${c.file}</div>
+      </div>
+      <button class="secondary small" data-save-color="${i}">Salva colore</button>
+      <span></span>
+      <div class="char-pw-row" style="grid-column:1 / -1;">
+        <input type="text" placeholder="Nuova password per ${c.name}" data-pw-input="${i}">
+        <button class="secondary small" data-save-pw="${i}">Aggiorna password</button>
+      </div>
+      <div class="status-line" id="char-status-${i}" style="grid-column:1 / -1;"></div>
+    </div>
+  `).join("");
+
+  box.querySelectorAll("[data-save-color]").forEach(btn=>{
+    btn.addEventListener("click", ()=> updateCharColor(parseInt(btn.dataset.saveColor, 10)));
+  });
+  box.querySelectorAll("[data-save-pw]").forEach(btn=>{
+    btn.addEventListener("click", ()=> updateCharPassword(parseInt(btn.dataset.savePw, 10)));
+  });
+}
+
+async function updateCharColor(i){
+  const c = CHAR_LIST[i];
+  const colorInput = document.querySelector(`[data-color-idx="${i}"]`);
+  const newColor = colorInput.value;
+  setStatus(`char-status-${i}`, "Aggiornamento colore\u2026", "busy");
+  try{
+    const { content, sha } = await ghGetFile("index.html");
+    const entryRegex = new RegExp(`(\\{[^{}]*file:\\s*["']${c.file}["'][^{}]*\\})`);
+    const entryMatch = content.match(entryRegex);
+    if (!entryMatch) throw new Error("Non trovo questo personaggio nell'elenco su GitHub.");
+    let entry = entryMatch[1];
+    let newEntry;
+    if (/color\s*:/.test(entry)){
+      newEntry = entry.replace(/color\s*:\s*["'][^"']*["']/, `color: "${newColor}"`);
+    } else {
+      newEntry = entry.replace(/\}\s*$/, `, color: "${newColor}" }`);
+    }
+    const newContent = content.replace(entry, newEntry);
+    await ghPutFile("index.html", newContent, sha, `Aggiorna colore di ${c.name}`);
+    CHAR_LIST[i].color = newColor;
+    setStatus(`char-status-${i}`, "Colore aggiornato \u2713", "ok");
+  }catch(e){
+    setStatus(`char-status-${i}`, e.message, "err");
+  }
+}
+
+async function updateCharPassword(i){
+  const c = CHAR_LIST[i];
+  const pwInput = document.querySelector(`[data-pw-input="${i}"]`);
+  const newPw = pwInput.value.trim();
+  if (!newPw){ setStatus(`char-status-${i}`, "Scrivi prima una password.", "err"); return; }
+  setStatus(`char-status-${i}`, "Aggiornamento password\u2026", "busy");
+  try{
+    const hash = await sha256Hex(newPw);
+    const { content, sha } = await ghGetFile(c.file);
+    if (!/const CHAR_PASSWORD_HASH = "[^"]*";/.test(content)){
+      throw new Error("Non trovo la riga CHAR_PASSWORD_HASH in questo file.");
+    }
+    const newContent = content.replace(/const CHAR_PASSWORD_HASH = "[^"]*";/, `const CHAR_PASSWORD_HASH = "${hash}";`);
+    await ghPutFile(c.file, newContent, sha, `Aggiorna password di ${c.name}`);
+    pwInput.value = "";
+    setStatus(`char-status-${i}`, "Password aggiornata \u2713", "ok");
+  }catch(e){
+    setStatus(`char-status-${i}`, e.message, "err");
+  }
+}
+
+/* ---------- Password Master su tutti i personaggi ---------- */
+document.getElementById("master-pw-update").addEventListener("click", async ()=>{
+  const newPw = document.getElementById("master-pw-input").value.trim();
+  if (!newPw){ setStatus("master-pw-status", "Scrivi prima una nuova password Master.", "err"); return; }
+  if (!CHAR_LIST.length){ setStatus("master-pw-status", "Carica prima l'elenco dei personaggi.", "err"); return; }
+  setStatus("master-pw-status", "Aggiornamento in corso su tutti i file\u2026", "busy");
+  const hash = await sha256Hex(newPw);
+  let okCount = 0, errCount = 0;
+  for (const c of CHAR_LIST){
+    try{
+      const { content, sha } = await ghGetFile(c.file);
+      if (!/const MASTER_PASSWORD_HASH = "[^"]*";/.test(content)) throw new Error("riga non trovata");
+      const newContent = content.replace(/const MASTER_PASSWORD_HASH = "[^"]*";/, `const MASTER_PASSWORD_HASH = "${hash}";`);
+      await ghPutFile(c.file, newContent, sha, `Aggiorna password Master (da ${c.name})`);
+      okCount++;
+    }catch(e){
+      errCount++;
+    }
+  }
+  if (errCount === 0){
+    setStatus("master-pw-status", `Fatto: password Master aggiornata su tutti i ${okCount} personaggi. Ricordati di comunicarla.`, "ok");
+  } else {
+    setStatus("master-pw-status", `Aggiornati ${okCount}, falliti ${errCount}. Controlla la connessione e riprova sui falliti.`, "err");
+  }
 });
 </script>
 

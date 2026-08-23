@@ -54,9 +54,10 @@
     display:block;text-decoration:none;color:inherit;
     background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-3));
     border:1px solid var(--border-soft);border-radius:12px;
-    padding:20px;transition:transform .15s, border-color .15s, box-shadow .15s;
+    padding:20px 20px 20px 24px;transition:transform .15s, border-color .15s, box-shadow .15s;
     position:relative;overflow:hidden;
   }
+  .card .colorbar{position:absolute;top:0;left:0;bottom:0;width:5px;}
   .card::before{
     content:"";position:absolute;top:0;left:0;right:0;height:3px;
     background:linear-gradient(90deg, var(--violet), var(--gold));
@@ -88,6 +89,16 @@
     opacity:0.6;transition:opacity .15s, color .15s;
   }
   .master-link:hover{opacity:1;color:var(--gold-bright);}
+  .master-badge{
+    display:none;align-items:center;gap:6px;justify-content:center;margin:14px auto 0;width:fit-content;
+    background:rgba(148,80,216,0.12);border:1px solid var(--violet-dim);border-radius:20px;
+    padding:5px 14px;font-size:11.5px;color:var(--violet);
+  }
+  .master-badge.show{display:flex;}
+  .master-badge button{
+    background:none;border:none;color:var(--text-faint);text-decoration:underline;cursor:pointer;font-size:11px;padding:0;
+  }
+  .master-badge button:hover{color:var(--gold-bright);}
 </style>
 </head>
 <body>
@@ -95,6 +106,10 @@
 <div class="hero">
   <h1>Morgedal</h1>
   <p>Le schede dei personaggi del gruppo</p>
+  <div class="master-badge" id="master-badge">
+    🔓 Modalità Master attiva — tutte le schede sono sbloccate
+    <button id="master-logout">esci</button>
+  </div>
 </div>
 
 <div class="wrap">
@@ -111,26 +126,43 @@
 /* ============================================================
    ELENCO PERSONAGGI
    Per aggiungere un nuovo personaggio, aggiungi una riga qui:
-   { name: "Nome", subtitle: "Classe — breve descrizione", tag: "Livello X", file: "nomefile.html" }
+   { name: "Nome", subtitle: "Classe — breve descrizione", tag: "Livello X", file: "nomefile.html", color: "#c9a34e" }
+   Il campo "color" è opzionale: se presente, mostra una barretta colorata
+   sul bordo sinistro della card per riconoscere subito il personaggio.
    Il file va caricato nella stessa cartella di questo index.
    ============================================================ */
 const CHARACTERS = [
-  { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html" },
-  { name: "Lux", subtitle: "Evocatore Celeste — Arcangelo Pacificatore", tag: "Livello 8", file: "Lux_Scheda_Interattiva.html" },
-  { name: "Ola", subtitle: "Ibrido Distruttore — Corredo Genetico", tag: "Livello 8", file: "Ola_Scheda_Interattiva.html" },
-  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 7", file: "Ervork_Scheda_Interattiva.html" },
-  { name: "Gorg", subtitle: "Campione del Caos — Goblin posseduto da Sakar", tag: "", file: "Gorg_Scheda_Interattiva.html" }
+  { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html", color: "#6b8f4e" },
+  { name: "Lux", subtitle: "Evocatore Celeste — Arcangelo Pacificatore", tag: "Livello 8", file: "Lux_Scheda_Interattiva.html", color: "#eecb7c" },
+  { name: "Ola", subtitle: "Ibrido Distruttore — Corredo Genetico", tag: "Livello 8", file: "Ola_Scheda_Interattiva.html", color: "#c9463b" },
+  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 7", file: "Ervork_Scheda_Interattiva.html", color: "#9450d8" },
+  { name: "Gorg", subtitle: "Campione del Caos — Goblin posseduto da Sakar", tag: "", file: "Gorg_Scheda_Interattiva.html", color: "#4fd1c5" }
 ];
 
 const grid = document.getElementById("grid");
 grid.innerHTML = CHARACTERS.map(c => `
   <a class="card" href="${encodeURI(c.file)}">
+    ${c.color ? `<span class="colorbar" style="background:${c.color}"></span>` : ""}
     <div class="name">${c.name}</div>
     <div class="subtitle">${c.subtitle || ""}</div>
     ${c.tag ? `<span class="tag">${c.tag}</span>` : ""}
     <span class="arrow">→</span>
   </a>
 `).join("") + `<div class="empty-card">+ Nuovo personaggio<br>(aggiungilo all'elenco CHARACTERS)</div>`;
+
+/* Indicatore modalità Master (condiviso con tutte le schede tramite localStorage) */
+const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
+function refreshMasterBadge(){
+  const badge = document.getElementById("master-badge");
+  let unlocked = false;
+  try{ unlocked = localStorage.getItem(MASTER_UNLOCK_KEY) === "1"; }catch(e){}
+  badge.classList.toggle("show", unlocked);
+}
+document.getElementById("master-logout").addEventListener("click", ()=>{
+  try{ localStorage.removeItem(MASTER_UNLOCK_KEY); }catch(e){}
+  refreshMasterBadge();
+});
+refreshMasterBadge();
 </script>
 
 </body>
