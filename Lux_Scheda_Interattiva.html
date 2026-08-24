@@ -214,6 +214,9 @@
     cursor:pointer;background:transparent;transition:background .15s, box-shadow .15s;
   }
   .pip.used{background:radial-gradient(circle at 35% 30%, var(--violet), var(--violet-dim));box-shadow:0 0 8px rgba(148,80,216,0.8);border-color:var(--violet);}
+  .pip.slot-pip.used{background:radial-gradient(circle at 35% 30%, var(--gold-bright), #a3792c);box-shadow:0 0 8px rgba(201,163,78,0.75);border-color:var(--gold);}
+  .pip.slot-pip.pip-red{border-color:#e0524a;}
+  .pip.slot-pip.pip-red.used{background:radial-gradient(circle at 35% 30%, #ff8a7a, #a8302a);box-shadow:0 0 9px rgba(224,82,74,0.8);border-color:#e0524a;}
   .pip.death{border-color:var(--bad);}
   .pip.death.used{background:radial-gradient(circle at 35% 30%, #e0685a, var(--bad));box-shadow:0 0 8px rgba(224,104,90,0.7);border-color:var(--bad);}
   .pip.pip-special{border-color:#c46be0;}
@@ -267,6 +270,24 @@
   .inv-table input[type=text]:focus, .inv-table textarea:focus{outline:none;background:var(--bg-panel-2);border-radius:4px;}
   .inv-table input[type=number]{width:52px;background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--gold-bright);border-radius:5px;text-align:center;font-family:var(--mono);}
   .inv-table textarea{width:100%;background:transparent;border:none;color:var(--text-dim);font-size:12.5px;min-height:28px;font-family:var(--sans);}
+
+  /* ---------- INVENTARIO (card, non tabella) ---------- */
+  #inv-list{display:flex;flex-direction:column;gap:8px;}
+  .inv-item{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;}
+  .inv-item-top{display:flex;align-items:center;gap:10px;}
+  .inv-item-top input[type=checkbox]{accent-color:var(--gold);width:17px;height:17px;flex-shrink:0;}
+  .inv-item .imgcell{flex-shrink:0;}
+  .inv-item .inv-name{flex:1;min-width:0;background:transparent;border:none;color:var(--text);font-weight:700;font-size:14.5px;padding:4px 2px;}
+  .inv-item .inv-name:focus{outline:none;background:var(--bg-panel-3);border-radius:4px;}
+  .inv-peso-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+  .inv-peso-wrap input[type=number]{width:48px;background:var(--bg-panel-3);border:1px solid var(--border-soft);color:var(--gold-bright);border-radius:5px;text-align:center;font-family:var(--mono);padding:4px 2px;}
+  .inv-peso-wrap label{font-size:11px;color:var(--text-faint);}
+  .inv-desc{
+    width:100%;background:transparent;border:none;color:var(--text-dim);font-size:13px;line-height:1.55;
+    font-family:var(--sans);margin-top:6px;resize:none;overflow:hidden;padding:4px 2px;min-height:20px;
+  }
+  .inv-desc:focus{outline:none;background:var(--bg-panel-3);border-radius:4px;}
+  .inv-desc::placeholder{color:var(--text-faint);}
   .inv-remove{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:16px;}
   .inv-remove:hover{color:var(--bad);}
 
@@ -305,6 +326,17 @@
   .savebar #savebar-status.warn-text{color:#ff9d90;font-weight:600;}
   #btn-print{background:linear-gradient(180deg, #22301f, #182013);border-color:var(--good);}
   #btn-print:hover{color:#b9e0ac;}
+  .savebar-toggle{display:none;}
+  @media (max-width:760px){
+    .savebar{ transition:padding .15s; }
+    .savebar-toggle{
+      display:flex;align-items:center;justify-content:center;
+      width:26px;height:26px;border-radius:50%;background:var(--bg-panel-2);border:1px solid var(--border-soft);
+      color:var(--gold-bright);font-size:13px;cursor:pointer;flex-shrink:0;padding:0;
+    }
+    .savebar.collapsed{padding:6px;border-radius:50%;gap:0;}
+    .savebar.collapsed .savebar-content{display:none;}
+  }
 
   .divider-label{font-family:var(--serif);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin:22px 0 8px;text-align:center;position:relative;}
   .divider-label::before,.divider-label::after{content:"";position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
@@ -410,6 +442,11 @@
 
     .inv-table th, .inv-table td.imgcell, .inv-table th:nth-child(2){ display:none !important; }
     .inv-table td{ padding:3px 5px !important; }
+    .inv-item{ background:#fff !important; border:1px solid #ccc !important; padding:6px 8px !important; }
+    .inv-item .imgcell{ display:none !important; }
+    .inv-item .inv-name{ color:#000 !important; }
+    .inv-peso-wrap input{ color:#000 !important; }
+    .inv-desc{ color:#333 !important; }
     .tracker{ padding:5px 0 !important; }
     .slot-lvl{ padding:4px 0 !important; }
 
@@ -459,6 +496,8 @@
 <div class="wrap" id="panels"></div>
 
 <div class="savebar" id="savebar">
+  <button class="savebar-toggle" id="savebar-toggle" title="Mostra/nascondi la barra">\u22ef</button>
+  <div class="savebar-content" id="savebar-content">
   <span id="savebar-status">Salvataggio automatico attivo</span>
   <div class="sep"></div>
   <button class="btn" id="btn-save-now" title="Forza subito il salvataggio">Salva ora</button>
@@ -477,6 +516,7 @@
   <div class="sep"></div>
   <button class="btn" id="btn-print" title="Versione pulita da stampare, senza sfondi né immagini">Stampa</button>
   <button class="btn" id="btn-new-sheet" title="Crea una scheda vuota per un nuovo personaggio">Nuova scheda</button>
+  </div>
 </div>
 
 <script>
@@ -525,7 +565,7 @@ const DEFAULT_STATE = {
     {lvl:3, max:4, used:0},
     {lvl:4, max:3, used:0},
     {lvl:5, max:2, used:0},
-    {lvl:6, max:0, used:0, special:true, specialNote:"Si sblocca al Livello 9 (Lux \u00e8 Livello 8) \u2014 non ancora disponibile."}
+    {lvl:6, max:1, used:0, colorClass:"pip-red", special:true, specialNote:"Si sblocca al Livello 9 (Lux \u00e8 Livello 8) \u2014 pallino rosso per ricordare che non \u00e8 ancora davvero disponibile."}
   ],
 
   risorse: [
@@ -589,7 +629,7 @@ const DEFAULT_STATE = {
     ["Bastone Santificato (Arma Livelliana)","Muta forma secondo necessit\u00e0 (armi o utensili) e spara colpi di luce, o infonde luce per creare oggetti abbinabili (es. frecce per un arco). I danni del bastone sono inversamente proporzionali alla potenza delle evocazioni sul campo: con una sola pedina Lvl1 (max 1d6) il bastone arriva a 5d6; con una pedina Lvl5 scende a 1d6. All'inizio dello scontro, con un'evocazione Lvl4 o inferiore gi\u00e0 sul campo, il primo dardo non consuma un attacco. Senza nessuna evocazione o abilit\u00e0 di luce attiva, il bastone arriva a 4d10 + 1 CA (pu\u00f2 mutare in tirapugni e sim.).<br><b>Abilit\u00e0 speciale:</b> pu\u00f2 generare uno slot Lvl4 extra in casi di emergenza \u2014 durante il quale Lux pu\u00f2 solo spostarsi (max 5 caselle), niente azioni complesse. Dopo l'effetto (breve come una cura, o lungo come un'evocazione), un turno obbligato di riposo/meditazione."]
   ],
   divergenzaAttivaNote: "Massimo 3 evocazioni per turno (incluse Armatura Waiku e Totem Lucenti). Solo un'abilit\u00e0 speciale utilizzabile a turno. Con evocazioni di livello diverso sul campo, solo una \u00e8 utilizzabile per scontro; se sono tutte dello stesso livello, si possono usare tutte ma una per turno.",
-  divergenzaPassiva: "<p><b>Scheletro Demoniaco</b> (Truccetto, richiede Ervork sul campo): dopo il contatto con la natura corrotta di Ervork, Lux pu\u00f2 fondere luce celeste ed essenza demoniaca in un'evocazione minore di livello 2 \u2014 uno scheletro instabile che non consuma slot.<br>Attacca 1d10+2 danni normali, oppure divide l'attacco in 2d6 (1d6 radiante + 1d6 demoniaco): il demoniaco su 5-6 infligge 2 danni necrotici fissi a inizio turno nemico per 3 turni; il radiante su 5-6 cura lo scheletro dell'ammontare inflitto.<br>1x a scontro pu\u00f2 scagliare una lancia energetica fino a 12 caselle: se va a segno, +2d6 santi e 2d6 necrotici (i santi curano lo scheletro, i necrotici infliggono 5 danni fissi a turno fino a morte o fine scontro).</p><p><b>\u201cGennaro\u201d \u2014 Scheletro Demoniaco Elettrificato</b> (Truccetto avanzato, non consuma slot, 1x ogni 2 riposi lunghi; richiede Ola ed Ervork presenti insieme): creatura d'\u00e9lite di livello 5, fusione di luce, elettricit\u00e0 e potere demoniaco.<br>Attacco base 6d6 (3d6 elettrici + 3d6 demoniaci): ogni colpo elettrico lancia una moneta \u2014 se positiva ed \u00e8 andato a segno, il nemico \u00e8 paralizzato 1 turno (2 turni se ricolpito con esito positivo). I 3d6 demoniaci infliggono 5 danni necrotici fissi a turno, cumulabili fino a 15. Dopo ogni colpo a segno lo scheletro recupera 3d6 (eccesso in PF temporanei).<br>1x a scontro pu\u00f2 scagliare una lancia fino a 20 caselle: se colpisce, 20d6 danni totali (sacri/elettrici/demoniaci in parti uguali) \u2014 Lux recupera tutti i PF persi (o ottiene 30 PF temporanei se non ne aveva persi), il bersaglio subisce 20 danni necrotici fissi a turno fino a fine scontro ed \u00e8 paralizzato 3 turni. Se attiva insieme a un'altra evocazione di livello 5, Lux non pu\u00f2 attaccare direttamente: solo azioni difensive, curative o di supporto.</p><p><b>Armatura Waiku</b> (Abilit\u00e0, sbloccata da un oggetto): rituale che manifesta l'anima di un antico guerriero (monaci Kalashtar). Tot spendibile 36 danni (comprese evocazioni). Rinunciando all'attacco, +1d6+1 agli attacchi dell'armatura; con l'armatura evocata, le evocazioni perenni attaccano ogni turno senza limiti.<br>Lvl1: braccio scheletrico, 1d4+1, distanza 2 caselle, durata 4 turni.<br>Lvl2: entrambe le braccia, 1d8+1, distanza 3.<br>Lvl3: + costato, +1 CA, 1d10+2, distanza 4, +10 PF temp.<br>Lvl4: mezzo esoscheletro con testa, +2 CA, 3d6, distanza 5 (13 a distanza), +20 PF temp.<br>Lvl5: armatura completa, +3 CA, 6d6 o 3d12 (4d12+2 senza pedine sul campo), distanza 6 (20 a distanza), +30 PF temp; pu\u00f2 allontanarsi dal corpo fino a 10 caselle (perdendo bonus e PF temp se lontana). 1x ogni 2 riposi lunghi pu\u00f2 potenziarsi a 150 PF / 21 CA / 12d6 / Mov. 7.</p><hr><p><b>Progressione futura (Livelli 9\u201320) \u2014 sintesi, non ancora attiva.</b> Nota: questa parte del documento originale era ancora in fase di revisione da parte del giocatore oltre il livello 10 \u2014 qui resta un riassunto, chiedi al giocatore la versione completa se serve.</p><p><b>Lvl 9 \u2014 Risonanza + 1\u00b0 slot Lvl 6:</b> vibrazione mentale/spirituale che rafforza alleati (protezione mentale e bonus ai tiri per colpire) o destabilizza nemici (malus ai tiri, rischio di saltare turni, illusioni), scalando in bersagli e intensit\u00e0 da Lvl1 a Lvl5. Ottiene anche il primo slot di Livello 6.</p><p><b>Lvl 10 \u2014 Avvento:</b> forma arcangelica potenziata \u2014 levitazione, ali di luce, +1 CA, Grazia Arcangelica (nemici con Carisma inferiore non possono davvero combatterlo), Aura della Luminescenza, Onniveggenza Celeste, azione e incantesimo bonus aggiuntivi, riserve celesti raddoppiate/gratuite, 10d6 danni da ripartire liberamente, arma trasformabile in Falce del Giudizio. 1x ogni 2 riposi lunghi. Include <b>Requie</b>: comunione con i morti anche senza corpo integro.</p><p><b>Lvl 11 \u2014 Ali Angeliche:</b> volo, +15 spostamento, +3 CA, pi\u00f9 vulnerabile ad attacchi aerei.</p><p><b>Lvl 13:</b> potenziamenti ad Aura di Protezione, Prigione Divina, Imposizione delle Mani (300 punti); nuove abilit\u00e0 Supporto Ancestrale (elfi lucenti), Evocazione Lucente (golem di luce) e Bastone Lucente (trasformabile in varie armi).</p><p><b>Lvl 14:</b> Tocco Purificatore (termina un incantesimo), potenziamento di Punizione Divina e Benedizione.</p><p><b>Lvl 15:</b> ulteriori potenziamenti (400 punti) di Aura di Protezione/Prigione Divina/Imposizione delle Mani, Supporto Ancestrale (mezzangeli alati), Evocazione Lucente e Armatura Lucente; il Bastone Lucente diventa Lancia Divina; nuova Blocca Mostri (paralisi su fallimento TS Saggezza).</p><p><b>Lvl 17:</b> potenziamenti ulteriori a tutte le abilit\u00e0 precedenti; nuova <b>Evocazione Suprema</b> \u2014 un Drago Celeste (se Lux ha meno di 50 PF), doppio dei PF massimi, attacco 10d20, 5 turni, 1x utilizzabile.</p><p><b>Lvl 18:</b> Chiamata alle Armi (cura tutti gli alleati entro 20 caselle) e Anima Gemella (il bastone permette al fratello di Lux di combattere in forma angelica per tutto lo scontro, in autonomia).</p><p><b>Lvl 19 \u2014 Resurrezione:</b> rinviene tutti i PG in ultima speranza a distanza illimitata, 1x per scontro.</p><p><b>Lvl 20 \u2014 Divinazione:</b> se a 30 PF o meno, per 3 turni entra nel mondo ancestrale degli dei diventando inattaccabile pur potendo agire normalmente.</p>",
+  divergenzaPassiva: "<p><b>Scheletro Demoniaco</b> (Truccetto, richiede Ervork sul campo): dopo il contatto con la natura corrotta di Ervork, Lux pu\u00f2 fondere luce celeste ed essenza demoniaca in un'evocazione minore di livello 2 \u2014 uno scheletro instabile che non consuma slot.<br>Attacca 1d10+2 danni normali, oppure divide l'attacco in 2d6 (1d6 radiante + 1d6 demoniaco): il demoniaco su 5-6 infligge 2 danni necrotici fissi a inizio turno nemico per 3 turni; il radiante su 5-6 cura lo scheletro dell'ammontare inflitto.<br>1x a scontro pu\u00f2 scagliare una lancia energetica fino a 12 caselle: se va a segno, +2d6 santi e 2d6 necrotici (i santi curano lo scheletro, i necrotici infliggono 5 danni fissi a turno fino a morte o fine scontro).</p><p><b>\u201cGennaro\u201d \u2014 Scheletro Demoniaco Elettrificato</b> (Truccetto avanzato, non consuma slot, 1x ogni 2 riposi lunghi; richiede Ola ed Ervork presenti insieme): creatura d'\u00e9lite di livello 5, fusione di luce, elettricit\u00e0 e potere demoniaco.<br>Attacco base 6d6 (3d6 elettrici + 3d6 demoniaci): ogni colpo elettrico lancia una moneta \u2014 se positiva ed \u00e8 andato a segno, il nemico \u00e8 paralizzato 1 turno (2 turni se ricolpito con esito positivo). I 3d6 demoniaci infliggono 5 danni necrotici fissi a turno, cumulabili fino a 15. Dopo ogni colpo a segno lo scheletro recupera 3d6 (eccesso in PF temporanei).<br>1x a scontro pu\u00f2 scagliare una lancia fino a 20 caselle: se colpisce, 20d6 danni totali (sacri/elettrici/demoniaci in parti uguali) \u2014 Lux recupera tutti i PF persi (o ottiene 30 PF temporanei se non ne aveva persi), il bersaglio subisce 20 danni necrotici fissi a turno fino a fine scontro ed \u00e8 paralizzato 3 turni. Se attiva insieme a un'altra evocazione di livello 5, Lux non pu\u00f2 attaccare direttamente: solo azioni difensive, curative o di supporto.</p><p><b>Armatura Waiku</b> (Abilit\u00e0, sbloccata da un oggetto): rituale che manifesta l'anima di un antico guerriero (monaci Kalashtar). Tot spendibile 36 danni (comprese evocazioni). Rinunciando all'attacco, +1d6+1 agli attacchi dell'armatura; con l'armatura evocata, le evocazioni perenni attaccano ogni turno senza limiti.<br>Lvl1: braccio scheletrico, 1d4+1, distanza 2 caselle, durata 4 turni.<br>Lvl2: entrambe le braccia, 1d8+1, distanza 3.<br>Lvl3: + costato, +1 CA, 1d10+2, distanza 4, +10 PF temp.<br>Lvl4: mezzo esoscheletro con testa, +2 CA, 3d6, distanza 5 (13 a distanza), +20 PF temp.<br>Lvl5: armatura completa, +3 CA, 6d6 o 3d12 (4d12+2 senza pedine sul campo), distanza 6 (20 a distanza), +30 PF temp; pu\u00f2 allontanarsi dal corpo fino a 10 caselle (perdendo bonus e PF temp se lontana). 1x ogni 2 riposi lunghi pu\u00f2 potenziarsi a 150 PF / 21 CA / 12d6 / Mov. 7.</p>",
 
   truccetti: [
     {nome:"Prigione Divina", desc:"Evoca barre di luce che intrappolano il nemico in una prigione da cui, per uscire, deve superare un tiro salvezza (ogni turno passato dentro: -1d10). TS difficolt\u00e0 per il nemico 17, CD 16, durata 5 turni.", uso:"2 x Riposo Lungo"},
@@ -615,6 +655,8 @@ const DEFAULT_STATE = {
     {title:"Sessione 20/01/2026", date:"20/01/2026", text:"Eldrich e Baldrim: mappa. Migliori forgiatori di Gloxinia. Leonard, apprendista di Baldrim."},
     {title:"Sessione 30/12/2025", date:"30/12/2025", text:"Allenamento con Taramond. Prossimo passo: andare nelle 3 miniere ad aiutare i compagni di Taramond, nella citt\u00e0 di Looham dove c'\u00e8 Ares rintanato \u2014 servono 3 chiavi che stanno nelle miniere, all'ultimo piano."}
   ],
+
+  progressioneFutura: "<p><b>LIVELLO 9 \u2014 RISONANZA</b></p><p>Il personaggio emette una vibrazione mentale e spirituale di natura celeste che entra in risonanza con mente, anima e volont\u00e0 delle creature scelte. Sugli alleati rafforza lucidit\u00e0, ordine interiore e stabilit\u00e0 mentale; sui nemici esercita una pressione psichica che pu\u00f2 generare disorientamento, confusione, alterazioni percettive, perdita di precisione, destabilizzazione mentale e progressiva compromissione del controllo. \u00c8 un controllo mentale progressivo: ai livelli bassi la mente del bersaglio pu\u00f2 solo essere influenzata o disturbata; aumentando la potenza pu\u00f2 diventare sempre pi\u00f9 invasiva, fino a compromettere azioni complesse, capacit\u00e0 decisionali, percezione della realt\u00e0 e persino indurre il nemico ad azioni errate, casuali o ostili verso i propri alleati.</p><p>\u2022 <b>LVL 1</b> (1 bersaglio / TS SAG 16 solo se nemico): alleato \u2192 +2 protezione mentale (charme, paura, confusione, controllo mentale) e maggiore lucidit\u00e0 nelle decisioni. Nemico \u2192 -2 ai tiri per colpire e lieve pressione mentale che disturba concentrazione e precisione.</p><p>\u2022 <b>LVL 2</b> (2 bersagli / TS SAG 17): alleati \u2192 +3 protezione mentale, +2 ai tiri per colpire, maggiore coordinazione e sintonia tattica. Nemici \u2192 -3 ai tiri per colpire; se falliscono il TS, confusione mentale pi\u00f9 marcata che rende pi\u00f9 difficile azioni complesse, lanciare incantesimi, mantenere concentrazione o usare abilit\u00e0 che richiedono controllo mentale.</p><p>\u2022 <b>LVL 3</b> (3 bersagli / TS SAG 18): alleati \u2192 +4 protezione mentale, +3 ai tiri per colpire, lucidit\u00e0 psichica sufficiente a riconoscere illusioni di media potenza (a volte anche pi\u00f9 forti, se non eccessivamente complesse). Nemici \u2192 -4 ai tiri per colpire; se falliscono il TS, forte destabilizzazione, grave difficolt\u00e0 nelle abilit\u00e0 di controllo mentale, e saltano il turno successivo.</p><p>\u2022 <b>LVL 4</b> (4 bersagli / TS SAG 19): alleati \u2192 +5 protezione mentale, +4 ai tiri per colpire, connessione mentale condivisa che permette comunicazione telepatica e coordinamento immediato e preciso, oltre al riconoscimento di illusioni pi\u00f9 avanzate.</p><p>\u2022 <b>LVL 5:</b> effetto al massimo della sua potenza (dettaglio da definire in gioco, coerente con la progressione sopra).</p><p><b>Ottenimento Nr. 1 Slot Livello 6.</b></p><hr><p><b>LIVELLO 10</b></p><p><b>1) AVVENTO</b></p><p>Il contenitore mortale del personaggio si apre in misura pi\u00f9 ampia alla propria vera natura arcangelica: pu\u00f2 levitare costantemente e manifestare ali di luce; il corpo \u00e8 avvolto da un'aura angelica visibile, CA +1, tutte le capacit\u00e0 nettamente amplificate. Pu\u00f2 usare in parte la Grazia Arcangelica, seppur non a pieno potere.</p><p>\u2022 <b>Grazia Arcangelica \u2014 Preminenza:</b> entro 6 caselle, i nemici con Carisma inferiore al suo non possono colpirlo n\u00e9 intraprendere realmente combattimento contro di lui \u2014 la sua natura celeste si impone come superiorit\u00e0 spirituale insormontabile. Solo creature con Carisma pari o superiore possono affrontarlo direttamente.</p><p>\u2022 <b>Aura della Luminescenza:</b> entro 6 caselle, gli alleati nell'aura ottengono 10 PF a turno (o 10 PF temporanei se gi\u00e0 al massimo, cumulabili fino a 30, salvo eccezioni); finch\u00e9 restano nell'aura, +1 CA, +3 ai tiri per colpire, +1d6 ai danni.</p><p>\u2022 <b>Onniveggenza Celeste:</b> per la durata dello stato, il campo di battaglia \u00e8 totalmente leggibile \u2014 invisibilit\u00e0, presenze occultate, tracce, distorsioni luminose, magie ed energie diventano percepibili con estrema chiarezza.</p><p>\u2022 <b>Azione Superiore:</b> un'azione bonus fissa aggiuntiva e un incantesimo bonus in pi\u00f9 nel turno (fino a due azioni e due incantesimi nello stesso turno).</p><p>\u2022 <b>Riserve Celesti:</b> gli utilizzi dal Lvl1 al Lvl3 diventano gratuiti e illimitati per la durata dello stato; quelli di Lvl4 e Lvl5 raddoppiano.</p><p>\u2022 <b>Potenziamento Assoluto:</b> 10d6 danni complessivi per turno, da ripartire liberamente tra incantesimi, colpi a mani nude o attacchi con l'arma (che in questo stato diventa un catalizzatore di potenza celeste).</p><p>\u2022 <b>Dominio dell'Arma:</b> pu\u00f2 usare la propria arma a distanza senza impugnarla (telecinesi divina); l'arma si trasforma in una falce. <b>Attacco Speciale \u2014 Falce del Giudizio:</b> 1x a scontro, la falce accelera in una sega circolare celeste ad area, fino a 6 nemici, un colpo singolo fino a 6d6 danni; chi \u00e8 colpito subisce 5 danni da sanguinamento a turno fino a fine scontro, diventa un \u201csuddito celeste\u201d con -4 Carisma e pi\u00f9 vulnerabile all'influenza mentale dell'arcangelo.</p><p>Utilizzabile 1 ogni 2 riposi lunghi.</p><p><b>2) REQUIE</b></p><p>Comunione con i morti anche senza contatto diretto col corpo integro: pu\u00f2 percepire e interrogare anime, resti, scheletri o frammenti di una salma, purch\u00e9 resti una traccia spirituale sufficiente. Pu\u00f2 ascoltare memorie residue, ricevere risposte, cogliere emozioni legate alla morte o comprendere eventi accaduti attorno ai resti. Pu\u00f2 anche purificare i morti: placare spiriti inquieti, liberare presenze corrotte, sciogliere legami malevoli o accompagnare l'anima verso la quiete. Le anime purificate possono lasciare benefici temporanei variabili (evocazioni temporanee, potenziamenti fisici, amplificazioni agli incantesimi, altri buff spirituali), proporzionati alla purificazione compiuta.</p><hr><p><b>LIVELLO 11 \u2014 ALI ANGELICHE</b></p><p>Spuntano le ali: possibilit\u00e0 di volare, bonus spostamento +15. Malus: pi\u00f9 vulnerabile ad attacchi aerei. La CA muta e aumenta +3 (Costituzione Angelica).</p><hr><p><b>LIVELLO 13</b></p><p><b>0) Aura di Protezione (potenziata):</b> 40 caselle, 3 turni, ogni alleato pu\u00f2 curarsi 2d20 o scegliere +3 CA. Se un PG \u00e8 a met\u00e0 vita o meno e in ultima speranza, ogni turno d'aura +5 CA e il turno si allunga di 1. CD 15. Lux stesso recupera 2d20+1d10 a turno o +3 CA. Utilizzabile 3.</p><p><b>1) Prigione Divina (potenziata):</b> CD 17, durata 6 turni. Utilizzabile 4.</p><p><b>2) Imposizione delle Mani (potenziata):</b> 300 punti spendibili tra s\u00e9 stesso o altri giocatori, liberamente (non pi\u00f9 vincolati a una sola persona).</p><p><b>3) Supporto Ancestrale:</b> evoca 3 Elfi Lucenti (arco lungo, balestra o doppia spada, 1d10+1d8) che eseguono i suoi ordini per 10 turni. Vita pari a met\u00e0 di un paladino (+3 Destrezza, +2 Forza), bonus ai tiri per colpire +3, CD 12. Utilizzabile 5.</p><p><b>4) Evocazione Lucente:</b> evoca un golem di luce, 6d12 danni, per 10 turni, CD 14, utilizzabile 4. +40 PF, +4 Forza, Rigenerazione (se \u201cdistrutto\u201d si divide in due golem pi\u00f9 piccoli a vita dimezzata, fino a un'ulteriore divisione). CA del giocatore +3.</p><p><b>5) Armatura Lucente (potenziata):</b> +4 CA + Mod. Costituzione + Mod. Destrezza fino a fine scontro. CD 14. Utilizzabile 3.</p><p><b>6) Bastone Lucente:</b> 7d6 danni taglienti. Pu\u00f2 trasformarsi in: spadone 6d6+1d8, martello medio-lungo 6d8+2, due artigli 2d12+1d10 (doppio attacco), arco 2d12+1d6, scudo di luce +5 CA. Un solo colpo grosso: 2d12+2d8+1d4.</p><hr><p><b>LIVELLO 14</b></p><p><b>1) Tocco Purificatore:</b> usa l'azione per terminare un incantesimo su s\u00e9 stesso o su una creatura cosciente che sta toccando. CD 12. Utilizzabile illimitato.</p><p><b>2) Punizione Divina (potenziata):</b> +1d12 danni arma, CD 13, utilizzabile 5.</p><p><b>3) Benedizione (potenziata):</b> parla con i morti ed epura il male inflitto; sui vivi, vede l'ultima ora del loro passato al tocco.</p><hr><p><b>LIVELLO 15</b></p><p><b>0) Aura di Protezione (potenziata):</b> 60 caselle, 3 turni, cure 3d20 o +3 CA. In ultima speranza: +6 CA a turno +1. CD 14. Lux recupera 20 PF automatici + 2d20 a turno, o +3 CA. Utilizzabile 3.</p><p><b>1) Prigione Divina (potenziata):</b> CD 18, durata 7 turni. Utilizzabile 4.</p><p><b>2) Imposizione delle Mani (potenziata):</b> 400 punti spendibili tra s\u00e9 e altri giocatori.</p><p><b>3) Supporto Ancestrale (potenziato):</b> evoca 4 mezzangeli alati (1d12+1d8, tiro bonus per armi lucenti) per tutto il combattimento. Vita met\u00e0 paladino (+4 Destrezza, +4 Forza, +20 spostamento in volo), armi a piacere. Possono tentare di impadronirsi del corpo nemico (TS nemico 17). Utilizzabile 5.</p><p><b>4) Evocazione Lucente (potenziata):</b> golem di luce 9d12, per tutto il combattimento, CD 13, utilizzabile 4. CA del giocatore +3, +70 PF.</p><p><b>5) Armatura Lucente (potenziata):</b> +4 CA + Mod. Costituzione + Mod. Destrezza. CD 11. Utilizzabile 4.</p><p><b>6) Bastone Lucente diventa Lancia Divina:</b> 9d6 danni taglienti. Trasformabile in: spadone 7d6+1d10, martello medio-lungo 6d8+2, due artigli 2d12+1d12+1d4 (doppio attacco), arco 2d20+1d4, scudo di luce +6 CA, pugni di luce 3d12+1d20. Colpo grosso singolo: 3d12+2d8+1d4.</p><p><b>6) Blocca Mostri:</b> sceglie una creatura visibile entro gittata; TS Saggezza o paralisi per la durata (nessun effetto sui non-morti). A fine turno il bersaglio pu\u00f2 ritentare il TS per liberarsi. Utilizzabile 3. CD 12.</p><hr><p><b>LIVELLO 17</b></p><p><b>0) Aura di Protezione (potenziata):</b> tutto il campo di battaglia, 4 turni, cure 4d20 o +3 CA. In ultima speranza: +6 CA a turno +2. CD 13. Lux recupera 80 PF automatici a turno e +3 CA. Utilizzabile 2.</p><p><b>1) Prigione Divina (potenziata):</b> CD 20, durata 10 turni. Utilizzabile 4.</p><p><b>2) Imposizione delle Mani (potenziata):</b> 500 punti spendibili tra s\u00e9 e altri giocatori.</p><p><b>3) Supporto Ancestrale (potenziato):</b> evoca 4 Angeli Lucenti, armi qualsiasi + sanguinamento + armatura lucente + arma divina base (1d10 base) + 2d20, per tutto il combattimento. Vita di un paladino. CD 10. Utilizzabile 6.</p><p><b>4) Evocazione Lucente (potenziata):</b> golem di luce 7d20, per tutto il combattimento, CD 12, utilizzabile 4 (critico naturale 19-20 lo sdoppia) + tutti i buff del livello precedente. CA del giocatore +5, +50 PF.</p><p><b>5) Armatura Lucente (potenziata):</b> +6 CA + Mod. Costituzione + Mod. Destrezza. CD 11. Utilizzabile 4.</p><p><b>6) Lancia Divina:</b> 2d20+2d10+3d6 danni taglienti. Trasformabile in: spadone 10d6+1d10, martello medio-lungo 7d8+2, due artigli 4d12+1d6+1d4 (doppio attacco), arco 2d20+1d8, scudo di luce +6 CA, pugni di luce 4d12+1d20+1d8. Raggio di luce: 4d12+2d8+1d10 (danni percentuali di perforazione).</p><p><b>6) Blocca Mostri:</b> come sopra, creatura visibile entro gittata.</p><p><b>7) Evocazione Suprema:</b> se ha meno di 50 PF, pu\u00f2 evocare un Drago Celeste col doppio dei suoi PF massimi e un attacco da 10d20. Durata 5 turni. Utilizzabile 1.</p><hr><p><b>LIVELLO 18</b></p><p><b>Chiamata alle Armi:</b> ristabilisce tutti i PF degli alleati entro 20 caselle. Utilizzabile 1. CD 15.</p><p><b>Anima Gemella:</b> pu\u00f2 lanciare la Lancia Divina in aria (rinunciando a combattere con essa) e farla pervadere da una forza divina che permette al fratello di Lux di manifestarsi in forma angelica lucente per tutto lo scontro, combattendo in totale autonomia (non controllato dal giocatore). CD 16. Utilizzabile 1.</p><hr><p><b>LIVELLO 19 \u2014 RESURREZIONE</b></p><p>Acquisisce la coscienza divina: pu\u00f2 rinsavire tutti i PG in ultima speranza senza doversi avvicinare, una volta per scontro, a distanza illimitata (ne percepisce le anime). CD 15. Utilizzabile 2.</p><hr><p><b>LIVELLO 20 \u2014 DIVINAZIONE</b></p><p>Se Lux ha 30 PF o meno, per 3 turni pu\u00f2 entrare nel mondo ancestrale degli dei ed essere inattaccabile, pur potendo comunque attaccare o agire come se fosse nel mondo umano. CD 17. Utilizzabile 1.</p>",
 
   heroBgPos: { x: 50, y: 20 },
   heroBgImage: ""
@@ -669,6 +711,7 @@ const BLANK_STATE = {
 
   noteGenerali: "",
   noteEntries: [],
+  progressioneFutura: "",
 
   heroBgPos: { x: 50, y: 20 },
   heroBgImage: ""
@@ -1100,7 +1143,8 @@ const TABS = [
   {id:"equip", label:"Equip. & Inventario"},
   {id:"divergenza", label:"Evocazioni", pulse:true},
   {id:"lore", label:"Ritratto & Lore"},
-  {id:"note", label:"Note"}
+  {id:"note", label:"Note"},
+  {id:"progressione", label:"Progressione Futura"}
 ];
 
 function renderTabbar(){
@@ -1279,7 +1323,8 @@ function renderPoteri(){
     const pips = Array.from({length:s.max}).map((_,p)=>{
       const isSpecial = specialSet.has(p);
       const title = isSpecial && s.specialNote ? ` title="${esc(s.specialNote)}"` : "";
-      return `<button class="pip ${p<s.used?'used':''} ${isSpecial?'pip-special':''}" data-slotpip="${i}-${p}"${title}></button>`;
+      const colorClass = isSpecial ? "pip-special" : (s.colorClass || "");
+      return `<button class="pip slot-pip ${p<s.used?'used':''} ${colorClass}" data-slotpip="${i}-${p}"${title}></button>`;
     }).join("");
     return `<div class="slot-lvl ${s.special?'slot-lvl-special':''}">
       <div class="lvl-badge">Livello ${s.lvl}${s.special?' \u26a0\ufe0f':''}</div>
@@ -1401,10 +1446,7 @@ function renderEquip(){
         <div class="inv-bar"><div class="inv-bar-fill" id="inv-bar-fill"></div></div>
         <span id="inv-total" style="font-family:var(--mono);font-size:13px;color:var(--gold-bright);"></span>
       </div>
-      <table class="inv-table">
-        <thead><tr><th></th><th>Img</th><th>Oggetto</th><th>Peso</th><th>Descrizione</th><th></th></tr></thead>
-        <tbody id="inv-tbody"></tbody>
-      </table>
+      <div id="inv-list"></div>
       <div style="margin-top:12px;"><button class="btn" id="inv-add">+ Aggiungi oggetto</button></div>
     </div>
   `;
@@ -1448,16 +1490,18 @@ function renderEquipSlots(){
 }
 
 function renderInvTable(){
-  const tbody = document.getElementById("inv-tbody");
-  tbody.innerHTML = STATE.inventario.map((it,i)=>`
-    <tr>
-      <td><input type="checkbox" data-inv-check="${i}" ${it[0]==="\u2713"?"checked":""}></td>
-      <td class="imgcell" id="inv-img-${i}"></td>
-      <td><input type="text" data-inv-name="${i}" value="${esc(it[1])}"></td>
-      <td><input type="number" data-inv-peso="${i}" value="${it[2]}"></td>
-      <td><textarea data-inv-desc="${i}" rows="1">${esc(it[3])}</textarea></td>
-      <td><button class="inv-remove" data-inv-del="${i}">\u2715</button></td>
-    </tr>`).join("");
+  const list = document.getElementById("inv-list");
+  list.innerHTML = STATE.inventario.map((it,i)=>`
+    <div class="inv-item">
+      <div class="inv-item-top">
+        <input type="checkbox" data-inv-check="${i}" ${it[0]==="\u2713"?"checked":""}>
+        <span class="imgcell" id="inv-img-${i}"></span>
+        <input type="text" class="inv-name" data-inv-name="${i}" value="${esc(it[1])}" placeholder="Nome oggetto">
+        <span class="inv-peso-wrap"><input type="number" data-inv-peso="${i}" value="${it[2]}"><label>P</label></span>
+        <button class="inv-remove" data-inv-del="${i}">\u2715</button>
+      </div>
+      <textarea class="inv-desc" data-inv-desc="${i}" rows="1" placeholder="Descrizione...">${esc(it[3])}</textarea>
+    </div>`).join("");
 
   STATE.inventario.forEach((it,i)=>{
     const cell = document.getElementById("inv-img-"+i);
@@ -1467,30 +1511,39 @@ function renderInvTable(){
       (dataUrl)=>{ STATE.inventario[i][4] = dataUrl; renderInvTable(); queueSave(); },
       ()=>{ STATE.inventario[i][4] = ""; renderInvTable(); queueSave(); }
     );
-    // in tabella mostriamo solo la miniatura, senza le etichette testuali
     const lbl = picker.querySelector(".file-btn");
     if (lbl) lbl.remove();
     cell.appendChild(picker);
   });
 
-  tbody.querySelectorAll('[data-inv-check]').forEach(c=>c.addEventListener("change",()=>{
+  list.querySelectorAll('[data-inv-check]').forEach(c=>c.addEventListener("change",()=>{
     STATE.inventario[c.dataset.invCheck][0] = c.checked?"\u2713":"";
     refreshInvTotal(); queueSave();
   }));
-  tbody.querySelectorAll('[data-inv-name]').forEach(c=>c.addEventListener("input",()=>{
+  list.querySelectorAll('[data-inv-name]').forEach(c=>c.addEventListener("input",()=>{
     STATE.inventario[c.dataset.invName][1] = c.value; queueSave();
   }));
-  tbody.querySelectorAll('[data-inv-peso]').forEach(c=>c.addEventListener("input",()=>{
+  list.querySelectorAll('[data-inv-peso]').forEach(c=>c.addEventListener("input",()=>{
     STATE.inventario[c.dataset.invPeso][2] = c.value; refreshInvTotal(); queueSave();
   }));
-  tbody.querySelectorAll('[data-inv-desc]').forEach(c=>c.addEventListener("input",()=>{
-    STATE.inventario[c.dataset.invDesc][3] = c.value; queueSave();
-  }));
-  tbody.querySelectorAll('[data-inv-del]').forEach(c=>c.addEventListener("click",()=>{
+  list.querySelectorAll('[data-inv-desc]').forEach(c=>{
+    autoGrowTextarea(c);
+    c.addEventListener("input",()=>{
+      STATE.inventario[c.dataset.invDesc][3] = c.value;
+      autoGrowTextarea(c);
+      queueSave();
+    });
+  });
+  list.querySelectorAll('[data-inv-del]').forEach(c=>c.addEventListener("click",()=>{
     STATE.inventario.splice(parseInt(c.dataset.invDel,10),1);
     renderInvTable(); refreshInvTotal(); queueSave();
   }));
   refreshInvTotal();
+}
+
+function autoGrowTextarea(el){
+  el.style.height = "auto";
+  el.style.height = (el.scrollHeight) + "px";
 }
 
 function refreshInvTotal(){
@@ -1590,6 +1643,21 @@ function renderLore(){
 /* ============================================================
    RENDER: NOTE
    ============================================================ */
+/* ============================================================
+   RENDER: PROGRESSIONE FUTURA
+   ============================================================ */
+function renderProgressione(){
+  const panel = document.getElementById("panel-progressione");
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="card">
+      <h2>Progressione Futura <small>livelli non ancora sbloccati \u2014 riferimento per quando servir\u00e0</small></h2>
+      <div class="rich" contenteditable="true" data-rich="progressioneFutura" style="font-size:14px;">${STATE.progressioneFutura || ""}</div>
+    </div>
+  `;
+  bindRich();
+}
+
 function renderNote(){
   const entries = STATE.noteEntries.map((n,i)=>`
     <div class="note-entry">
@@ -1712,6 +1780,7 @@ function renderAll(){
   renderDivergenza();
   renderLore();
   renderNote();
+  renderProgressione();
   bindSimpleInputs();
   syncHeroChips();
   const nameInput = document.querySelector('.editable-name');
@@ -1783,6 +1852,18 @@ function initAutoFlush(){
     if (document.visibilityState === "hidden") flushSave();
   });
   window.addEventListener("pagehide", flushSave);
+}
+
+function initSavebarToggle(){
+  const bar = document.getElementById("savebar");
+  const btn = document.getElementById("savebar-toggle");
+  if (!bar || !btn) return;
+  const isMobile = window.matchMedia("(max-width:760px)").matches;
+  if (isMobile) bar.classList.add("collapsed");
+  btn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    bar.classList.toggle("collapsed");
+  });
 }
 
 /* ============================================================
@@ -1964,6 +2045,7 @@ async function init(){
   initGoogleButton();
   initPrintButton();
   initAutoFlush();
+  initSavebarToggle();
 }
 
 document.addEventListener("DOMContentLoaded", initLock);
