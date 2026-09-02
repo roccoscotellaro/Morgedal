@@ -81,6 +81,13 @@
     color:var(--text-faint);font-size:13px;min-height:120px;
   }
  
+  .section-title{
+    font-family:var(--serif);font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    font-size:15px;color:var(--text-dim);margin:0 0 14px;padding-bottom:8px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .section-title:not(:first-child){margin-top:36px;}
+
   .footer-note{margin-top:40px;padding-top:20px;border-top:1px solid var(--border-soft);font-size:12px;color:var(--text-faint);}
   .footer-note code{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:4px;padding:1px 6px;color:var(--gold-bright);font-size:11.5px;}
   .master-link{
@@ -113,10 +120,16 @@
 </div>
  
 <div class="wrap">
-  <div class="grid" id="grid"></div>
+  <h2 class="section-title">Principali</h2>
+  <div class="grid" id="grid-principali"></div>
+
+  <h2 class="section-title">Viaggiatori</h2>
+  <div class="grid" id="grid-viaggiatori"></div>
+
   <div class="footer-note">
     Per aggiungere un nuovo personaggio: carica il suo file <code>.html</code> in questa stessa cartella su GitHub,
     poi aggiungi una riga all'elenco <code>CHARACTERS</code> in cima a questo file con nome, sottotitolo e nome del file.
+    Il nuovo personaggio comparirà tra i Viaggiatori finché non viene esplicitamente spostato tra i Principali.
     <br>
     <a class="master-link" href="admin.html">🔒 Accesso Master</a>
   </div>
@@ -127,30 +140,52 @@
    ELENCO PERSONAGGI
    Per aggiungere un nuovo personaggio, aggiungi una riga qui:
    { name: "Nome", subtitle: "Classe — breve descrizione", tag: "Livello X", file: "nomefile.html", color: "#c9a34e" }
-   Il campo "color" è opzionale: se presente, mostra una barretta colorata
-   sul bordo sinistro della card per riconoscere subito il personaggio.
+   Il campo "color" è il colore identificativo del personaggio.
+   Il campo "color2", se presente, indica un secondo colore identificativo: la barretta
+   sul bordo della card diventa un gradiente tra "color" e "color2" (es. Gorg).
+   Un nuovo personaggio senza il campo "principale" (o con principale:false) compare
+   automaticamente tra i Viaggiatori: nessuno viene spostato tra i Principali di default.
+   L'ordine dei Principali in homepage è fisso (vedi PRINCIPALI_ORDER) e non dipende
+   dall'ordine in cui i personaggi compaiono in questo elenco.
    Il file va caricato nella stessa cartella di questo index.
    ============================================================ */
 const CHARACTERS = [
-  { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html", color: "#6b8f4e" },
-  { name: "Lux", subtitle: "Evocatore Celeste — Arcangelo Pacificatore", tag: "Livello 8", file: "Lux_Scheda_Interattiva.html", color: "#eecb7c" },
-  { name: "Ola", subtitle: "Ibrido Distruttore — Corredo Genetico", tag: "Livello 8", file: "Ola_Scheda_Interattiva.html", color: "#c9463b" },
-  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 7", file: "Ervork_Scheda_Interattiva.html", color: "#9450d8" },
-  { name: "Gorg", subtitle: "Campione del Caos — Goblin posseduto da Sakar", tag: "", file: "Gorg_Scheda_Interattiva.html", color: "#4fd1c5" },
-  { name: "Katan", subtitle: "Guerriero Telecinetico — la mente come arma", tag: "Livello 8", file: "Katan_Scheda_Interattiva.html", color: "#5aa9e6" }
+  { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html", color: "#6b8f4e", principale: false },
+  { name: "Lux", subtitle: "Evocatore Celeste — Arcangelo Pacificatore", tag: "Livello 8", file: "Lux_Scheda_Interattiva.html", color: "#ffffff", principale: true },
+  { name: "Ola", subtitle: "Ibrido Distruttore — Corredo Genetico", tag: "Livello 8", file: "Ola_Scheda_Interattiva.html", color: "#9450d8", principale: true },
+  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 7", file: "Ervork_Scheda_Interattiva.html", color: "#d43b3b", principale: true },
+  { name: "Gorg", subtitle: "Campione del Caos — Goblin posseduto da Sakar", tag: "", file: "Gorg_Scheda_Interattiva.html", color: "#4fae54", color2: "#d6409f", principale: false },
+  { name: "Katan", subtitle: "Guerriero Telecinetico — la mente come arma", tag: "Livello 8", file: "Katan_Scheda_Interattiva.html", color: "#2e9bff", principale: true }
 ];
- 
-const grid = document.getElementById("grid");
-grid.innerHTML = CHARACTERS.map(c => `
+
+/* Ordine fisso di visualizzazione dei Principali (indipendente dall'ordine in CHARACTERS) */
+const PRINCIPALI_ORDER = ["Katan", "Ervork", "Ola", "Lux"];
+
+function cardHtml(c){
+  const barStyle = c.color2
+    ? `background:linear-gradient(180deg, ${c.color}, ${c.color2})`
+    : (c.color ? `background:${c.color}` : "");
+  return `
   <a class="card" href="${encodeURI(c.file)}">
-    ${c.color ? `<span class="colorbar" style="background:${c.color}"></span>` : ""}
+    ${(c.color || c.color2) ? `<span class="colorbar" style="${barStyle}"></span>` : ""}
     <div class="name">${c.name}</div>
     <div class="subtitle">${c.subtitle || ""}</div>
     ${c.tag ? `<span class="tag">${c.tag}</span>` : ""}
     <span class="arrow">→</span>
-  </a>
-`).join("") + `<div class="empty-card">+ Nuovo personaggio<br>(aggiungilo all'elenco CHARACTERS)</div>`;
- 
+  </a>`;
+}
+
+const principali = PRINCIPALI_ORDER
+  .map(n => CHARACTERS.find(c => c.name === n))
+  .filter(Boolean);
+const viaggiatori = CHARACTERS.filter(c => !principali.includes(c));
+
+document.getElementById("grid-principali").innerHTML =
+  principali.map(cardHtml).join("") || `<div class="empty-card">Nessun personaggio Principale in elenco.</div>`;
+
+document.getElementById("grid-viaggiatori").innerHTML =
+  viaggiatori.map(cardHtml).join("") + `<div class="empty-card">+ Nuovo personaggio<br>(aggiungilo all'elenco CHARACTERS)</div>`;
+
 /* Indicatore modalità Master (condiviso con tutte le schede tramite localStorage) */
 const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
 function refreshMasterBadge(){
