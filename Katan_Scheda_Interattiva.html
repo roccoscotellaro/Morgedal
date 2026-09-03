@@ -18,6 +18,9 @@
     --violet:#9450d8;
     --violet-dim:#5c3a86;
     --red-glow:#c9463b;
+    --blue:#4f8fd6;
+    --blue-dim:#2d5a86;
+    --identity:#2e9bff;
     --text:#ece3d0;
     --text-dim:#a89880;
     --text-faint:#7a6c58;
@@ -68,6 +71,10 @@
   }
   .hero:hover .hero-hint{opacity:1;}
 
+  .hero::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:4px;
+    background:var(--identity);z-index:2;
+  }
   .hero-inner{max-width:1180px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
   .hero-title{
     font-family:var(--serif);
@@ -91,6 +98,20 @@
     backdrop-filter: blur(2px);
   }
   .hero-chip b{color:var(--gold-bright);font-weight:600;}
+  .tipo-label{opacity:.65;font-size:11px;letter-spacing:.5px;}
+  .hero-chip-tipo{border-color:var(--identity);}
+  .hero-chip-tipo b{color:var(--identity);}
+  .quicknav{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px;}
+  .quicknav-pill{
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(148,80,216,0.12);border:1px solid var(--violet-dim);
+    border-radius:14px;padding:4px 12px;font-size:12px;color:var(--violet);
+    cursor:pointer;transition:background .15s,color .15s;
+  }
+  .quicknav-pill:hover{background:rgba(148,80,216,0.25);color:var(--gold-bright);}
+  .quicknav-pill::before{content:"\2197";font-size:11px;}
+  @keyframes anchorFlash{0%,100%{box-shadow:none;}30%{box-shadow:0 0 0 3px var(--gold);}}
+  .anchor-flash{animation:anchorFlash 1.4s ease;}
   .editable-name{
     background:transparent;border:none;color:var(--gold-bright);font-family:var(--serif);
     font-weight:700;font-size:clamp(38px,6vw,64px);letter-spacing:2px;text-transform:uppercase;
@@ -117,7 +138,7 @@
   }
   .tab-btn:hover{color:var(--text);}
   .tab-btn.active{color:var(--gold-bright);border-bottom:2px solid var(--gold);}
-  .dot-pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--violet);margin-left:6px;box-shadow:0 0 8px 2px rgba(148,80,216,0.7);animation:pulse 2.2s infinite;}
+  .dot-pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--identity);margin-left:6px;filter:drop-shadow(0 0 4px var(--identity));animation:pulse 2.2s infinite;}
   @keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
 
   .wrap{max-width:1180px;margin:0 auto;padding:26px 20px;}
@@ -146,6 +167,9 @@
   .grid-6{grid-template-columns:repeat(6,1fr);}
   @media (max-width:820px){.grid-4,.grid-3,.grid-6{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:520px){.grid-4,.grid-3,.grid-2,.grid-6{grid-template-columns:1fr 1fr;}}
+  @media (max-width:700px){.grid-2{grid-template-columns:1fr;}}
+  @media (max-width:520px){#equip-slots-grid{grid-template-columns:1fr;}}
+  @media (max-width:480px){.grid-3{grid-template-columns:1fr;}}
 
   .field{display:flex;flex-direction:column;gap:4px;}
   .field label{font-size:10.5px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-faint);}
@@ -247,7 +271,10 @@
   .rich b, .rich strong{color:var(--gold-bright);}
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
-  .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--violet);background:rgba(148,80,216,0.12);border:1px solid var(--violet-dim);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
+  .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
+  .subcard .tag.tag-passiva{color:var(--violet);background:rgba(148,80,216,0.12);border-color:var(--violet-dim);}
+  .subcard .tag.tag-truccetto{color:var(--blue);background:rgba(79,143,214,0.12);border-color:var(--blue-dim);}
+  .subcard .tag.tag-abilita{color:var(--red-glow);background:rgba(201,70,59,0.14);border-color:rgba(201,70,59,0.45);}
 
   /* ---------- EVOLUZIONI FUTURE (pannelli richiudibili) ---------- */
   .evo-note{font-size:12.5px;color:var(--text-faint);margin:-6px 0 14px;line-height:1.5;}
@@ -274,6 +301,10 @@
   .thumb{width:42px;height:42px;border-radius:7px;object-fit:cover;border:1px solid var(--border-soft);background:var(--bg-panel-3);cursor:pointer;}
   .thumb-placeholder{width:42px;height:42px;border-radius:7px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:17px;background:var(--bg-panel-3);cursor:pointer;flex-shrink:0;}
   .thumb-placeholder:hover, .thumb:hover{border-color:var(--gold);}
+  /* Miniature Equipaggiamento: più grandi rispetto a quelle dell'Inventario */
+  #equip-slots-grid .img-row{flex-wrap:wrap;gap:10px;}
+  #equip-slots-grid .thumb, #equip-slots-grid .thumb-placeholder{width:96px;height:96px;border-radius:10px;}
+  #equip-slots-grid .thumb-placeholder{font-size:30px;}
   .file-btn{font-size:10.5px;color:var(--text-dim);cursor:pointer;border:1px solid var(--border-soft);border-radius:6px;padding:4px 8px;background:var(--bg-panel-2);white-space:nowrap;}
   .file-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
   .file-input-hidden{display:none;}
@@ -288,15 +319,25 @@
   .img-zoom:hover{border-color:var(--gold);color:var(--gold-bright);}
   .img-lightbox{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;padding:24px;}
   .img-lightbox[hidden]{display:none;}
-  .img-lightbox-backdrop{position:absolute;inset:0;background:rgba(10,8,7,0.86);backdrop-filter:blur(2px);}
-  .img-lightbox-content{position:relative;max-width:min(92vw,900px);max-height:88vh;}
-  .img-lightbox-content img{display:block;max-width:100%;max-height:88vh;border-radius:10px;border:1px solid var(--border-soft);box-shadow:0 10px 40px rgba(0,0,0,0.5);}
+  .img-lightbox-backdrop{position:absolute;inset:0;background:rgba(10,8,7,0.92);backdrop-filter:blur(3px);}
+  .img-lightbox-content{
+    position:relative;max-width:min(96vw,1400px);max-height:92vh;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    transform:scale(.96);opacity:0;transition:transform .16s ease,opacity .16s ease;
+  }
+  .img-lightbox.show .img-lightbox-content{transform:scale(1);opacity:1;}
+  .img-lightbox-content img{display:block;max-width:100%;max-height:82vh;border-radius:12px;border:1px solid var(--border-soft);box-shadow:0 16px 60px rgba(0,0,0,0.6);}
+  .img-lightbox-caption{color:var(--gold-bright);font-size:14px;font-weight:600;text-align:center;}
+  .img-lightbox-caption[hidden]{display:none;}
   .img-lightbox-close{
-    position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;
+    position:absolute;top:-16px;right:-16px;width:38px;height:38px;border-radius:50%;
     background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
-    font-size:20px;line-height:1;cursor:pointer;
+    font-size:22px;line-height:1;cursor:pointer;
   }
   .img-lightbox-close:hover{border-color:var(--gold);color:var(--gold-bright);}
+  @media (max-width:520px){
+    .img-lightbox-close{top:-14px;right:0;}
+  }
 
   /* ---------- INVENTORY ---------- */
   .inv-cap{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
@@ -365,6 +406,16 @@
   .savebar .btn{padding:5px 11px;font-size:10.5px;border-radius:14px;}
   .savebar .sep{width:1px;height:16px;background:var(--border-soft);}
   .savebar.warn{border-color:var(--bad);}
+  .savebar-toggle{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    padding:8px 14px;border-radius:14px;
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);
+    color:var(--gold-bright);font-size:11px;font-weight:700;letter-spacing:.2px;
+    cursor:pointer;flex-shrink:0;white-space:nowrap;
+  }
+  .savebar-toggle:hover{border-color:var(--gold-bright);}
+  .savebar.collapsed{padding:6px 8px;gap:0;}
+  .savebar.collapsed .savebar-content{display:none;}
 
   /* Su smartphone il riquadro comandi non deve restare "fixed" sopra i contenuti
      durante lo scroll: torna nel normale flusso della pagina, in fondo alla scheda.
@@ -383,16 +434,12 @@
   .savebar #savebar-status.warn-text{color:#ff9d90;font-weight:600;}
   #btn-print{background:linear-gradient(180deg, #22301f, #182013);border-color:var(--good);}
   #btn-print:hover{color:#b9e0ac;}
-  .savebar-toggle{display:none;}
   @media (max-width:760px){
-    .savebar{ transition:padding .15s; }
-    .savebar-toggle{
-      display:flex;align-items:center;justify-content:center;
-      width:26px;height:26px;border-radius:50%;background:var(--bg-panel-2);border:1px solid var(--border-soft);
-      color:var(--gold-bright);font-size:13px;cursor:pointer;flex-shrink:0;padding:0;
-    }
-    .savebar.collapsed{padding:6px;border-radius:50%;gap:0;}
-    .savebar.collapsed .savebar-content{display:none;}
+    .pip{width:28px;height:28px;}
+    .pips{gap:8px;}
+    .btn{padding:10px 14px;font-size:13px;}
+    .btn.small{padding:8px 12px;}
+    .tab-btn{padding:14px 15px;}
   }
 
   .divider-label{font-family:var(--serif);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin:22px 0 8px;text-align:center;position:relative;}
@@ -442,6 +489,7 @@
       background:none !important; padding:2px 0 8px !important; border-bottom:2px solid #111 !important;
       cursor:default !important;
     }
+    .hero::before{ display:none !important; }
     .hero-inner{ align-items:baseline !important; gap:8px !important; }
     .editable-name{ color:#000 !important; text-shadow:none !important; border:none !important; font-size:26px !important; }
     .hero-sub{ color:#444 !important; font-size:11px !important; margin-top:2px !important; }
@@ -542,6 +590,7 @@
       <div class="hero-chip"><b data-key-text="classe">GUERRIERO TELECINETICO 8</b></div>
       <div class="hero-chip"><b data-key-text="razza">UMANO</b></div>
       <div class="hero-chip"><b data-key-text="background">DA DEFINIRE</b></div>
+      <div class="hero-chip hero-chip-tipo"><span class="tipo-label">TIPO: </span><b data-key-text="tipo">PRINCIPALE</b></div>
     </div>
   </div>
 </div>
@@ -552,8 +601,8 @@
 
 <div class="wrap" id="panels"></div>
 
-<div class="savebar" id="savebar">
-  <button class="savebar-toggle" id="savebar-toggle" title="Mostra/nascondi la barra">\u22ef</button>
+<div class="savebar collapsed" id="savebar">
+  <button class="savebar-toggle" id="savebar-toggle" type="button" title="Mostra il pannello Opzioni scheda">⚙ Opzioni scheda</button>
   <div class="savebar-content" id="savebar-content">
   <span id="savebar-status">Salvataggio automatico attivo</span>
   <div class="sep"></div>
@@ -581,6 +630,7 @@
   <div class="img-lightbox-content">
     <button type="button" class="img-lightbox-close" id="img-lightbox-close" title="Chiudi">&times;</button>
     <img id="img-lightbox-img" src="" alt="Immagine ingrandita dell'oggetto">
+    <div class="img-lightbox-caption" id="img-lightbox-caption" hidden></div>
   </div>
 </div>
 
@@ -595,8 +645,50 @@ window.__BERSERK_DATAURI = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2
 /* ============================================================
    DATI DI BASE (dalla scheda originale di Katan)
    ============================================================ */
+function slugify(s){
+  return String(s||"").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
+
+/* Colore funzionale del "tag" di una capacit\u00e0, dedotto dal testo del tag stesso
+   (non dall'array di appartenenza): Passiva = viola, Truccetto = blu, Abilit\u00e0/Incantesimo = rosso. */
+function tagColorClass(tag){
+  const t = String(tag || "");
+  if (/^passiva/i.test(t)) return "tag-passiva";
+  if (/^truccetto/i.test(t)) return "tag-truccetto";
+  if (/incantesimo/i.test(t) || /abilit/i.test(t)) return "tag-abilita";
+  return "";
+}
+const ATTACCHI_LINKS = [];
+function renderAttacchiNav(){
+  if (!ATTACCHI_LINKS.length) return "";
+  return `<div class="quicknav">${ATTACCHI_LINKS.map(l=>`<span class="quicknav-pill" data-jump-tab="${l.tab}" data-jump-anchor="${l.anchor}">${l.label}</span>`).join("")}</div>`;
+}
+function bindQuicknav(){
+  document.querySelectorAll(".quicknav-pill").forEach(el=>{
+    el.addEventListener("click", ()=> jumpToAnchor(el.dataset.jumpTab, el.dataset.jumpAnchor));
+  });
+}
+function jumpToAnchor(tabId, anchorId){
+  const btn = document.querySelector('.tab-btn[data-tab="'+tabId+'"]');
+  if (btn) btn.click();
+  setTimeout(()=>{
+    const el = anchorId ? document.getElementById(anchorId) : null;
+    const target = el || document.getElementById("panel-"+tabId);
+    if (target){
+      target.scrollIntoView({behavior:"smooth", block:"start"});
+      if (el){
+        el.classList.add("anchor-flash");
+        setTimeout(()=>el.classList.remove("anchor-flash"), 1500);
+      }
+    }
+  }, 80);
+}
+
 const DEFAULT_STATE = {
   nome: "KATANEL (KATAN) MARTINELLI",
+  tipo: "PRINCIPALE",
   classe: "GUERRIERO TELECINETICO 8",
   background: "DA DEFINIRE",
   razza: "UMANO",
@@ -1193,17 +1285,24 @@ function fileToCompressedDataURL(file, maxDim, quality, cb){
   reader.readAsDataURL(file);
 }
 
-function openImageLightbox(src){
+function openImageLightbox(src, label){
   const lb = document.getElementById("img-lightbox");
   const img = document.getElementById("img-lightbox-img");
+  const cap = document.getElementById("img-lightbox-caption");
   if (!lb || !img || !src) return;
   img.src = src;
+  if (cap){
+    if (label){ cap.textContent = label; cap.hidden = false; }
+    else { cap.textContent = ""; cap.hidden = true; }
+  }
   lb.hidden = false;
+  requestAnimationFrame(()=> lb.classList.add("show"));
 }
 function closeImageLightbox(){
   const lb = document.getElementById("img-lightbox");
   const img = document.getElementById("img-lightbox-img");
   if (!lb) return;
+  lb.classList.remove("show");
   lb.hidden = true;
   if (img) img.src = "";
 }
@@ -1219,7 +1318,7 @@ function initImageLightbox(){
 
 /* allowZoom: aggiunge un pulsante di ingrandimento (modal) accanto alla miniatura.
    Usato solo per le immagini dell'Equipaggiamento, non per l'Inventario. */
-function makeImagePicker(currentSrc, onPick, onRemove, allowZoom){
+function makeImagePicker(currentSrc, onPick, onRemove, allowZoom, zoomLabel){
   const wrap = document.createElement("div");
   wrap.className = "img-row";
 
@@ -1248,7 +1347,7 @@ function makeImagePicker(currentSrc, onPick, onRemove, allowZoom){
   if (currentSrc && allowZoom){
     const zoom = document.createElement("button");
     zoom.className = "img-zoom"; zoom.type="button"; zoom.textContent = "\u26f6"; zoom.title="Ingrandisci immagine";
-    zoom.addEventListener("click", (ev)=>{ ev.stopPropagation(); openImageLightbox(currentSrc); });
+    zoom.addEventListener("click", (ev)=>{ ev.stopPropagation(); openImageLightbox(currentSrc, zoomLabel); });
     wrap.appendChild(zoom);
   }
 
@@ -1385,6 +1484,7 @@ function renderScheda(){
 
     <div class="card">
       <h2>Attacchi & Incantesimi di Prima Utilit\u00e0</h2>
+      ${renderAttacchiNav()}
       <div class="rich" contenteditable="true" data-rich="attacchi">${STATE.attacchi}</div>
     </div>
   `;
@@ -1505,15 +1605,15 @@ function renderPoteri(){
   }).join("");
 
   const passiveHtml = STATE.passive.map((p,i)=>`
-    <div class="subcard">
-      <span class="tag">${p.tag}</span>
+    <div class="subcard" id="anchor-${slugify(p.nome)}">
+      <span class="tag ${tagColorClass(p.tag)}">${p.tag}</span>
       <h3>${p.nome}</h3>
       <div class="rich" contenteditable="true" data-rich-arr="passive-${i}">${p.desc}</div>
     </div>`).join("");
 
   const truccettiHtml = STATE.truccetti.map((t,i)=>`
-    <div class="subcard">
-      <span class="tag">Truccetto \u2014 ${esc(t.uso)}</span>
+    <div class="subcard" id="anchor-${slugify(t.nome)}">
+      <span class="tag ${tagColorClass('Truccetto')}">Truccetto \u2014 ${esc(t.uso)}</span>
       <h3>${t.nome}</h3>
       <div class="rich" contenteditable="true" data-rich-arr="truccetti-${i}">${t.desc}</div>
     </div>`).join("");
@@ -1636,7 +1736,8 @@ function renderEquipSlots(){
       STATE.equipImages[key],
       (dataUrl)=>{ STATE.equipImages[key] = dataUrl; renderEquipSlots(); queueSave(); },
       ()=>{ STATE.equipImages[key] = ""; renderEquipSlots(); queueSave(); },
-      true
+      true,
+      label
     );
     box.appendChild(picker);
     grid.appendChild(box);
@@ -1720,11 +1821,11 @@ function refreshInvTotal(){
    RENDER: DIVERGENZA
    ============================================================ */
 function renderDivergenza(){
-  const ambiti = STATE.ambiti.map(([n,d])=>`<div class="subcard"><span class="tag">Ambito</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
-  const campi = STATE.campiAttiva.map(([n,d])=>`<div class="subcard"><span class="tag">Campo</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
+  const ambiti = STATE.ambiti.map(([n,d])=>`<div class="subcard" id="anchor-${slugify(n)}"><span class="tag tag-abilita">Ambito</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
+  const campi = STATE.campiAttiva.map(([n,d])=>`<div class="subcard" id="anchor-${slugify(n)}"><span class="tag tag-abilita">Campo</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
 
   document.getElementById("panel-divergenza").innerHTML = `
-    <div class="card">
+    <div class="card" id="anchor-divergenza-top">
       <h2>Telecinesi</h2>
       <div class="rich" contenteditable="true" data-rich="divergenzaIntro">${STATE.divergenzaIntro}</div>
       <div class="divider-label">Super Abilit\u00e0 per Caratteristica</div>
@@ -1948,6 +2049,7 @@ function renderAll(){
   renderNote();
   renderEvoluzioni();
   bindSimpleInputs();
+  bindQuicknav();
   syncHeroChips();
   const nameInput = document.querySelector('.editable-name');
   if (nameInput) nameInput.value = STATE.nome;
@@ -2024,11 +2126,16 @@ function initSavebarToggle(){
   const bar = document.getElementById("savebar");
   const btn = document.getElementById("savebar-toggle");
   if (!bar || !btn) return;
-  const isMobile = window.matchMedia("(max-width:760px)").matches;
-  if (isMobile) bar.classList.add("collapsed");
+  function updateLabel(){
+    const collapsed = bar.classList.contains("collapsed");
+    btn.textContent = collapsed ? "⚙ Opzioni scheda" : "✕ Chiudi opzioni";
+    btn.title = collapsed ? "Mostra il pannello Opzioni scheda" : "Nascondi il pannello Opzioni scheda";
+  }
+  updateLabel();
   btn.addEventListener("click", (e)=>{
     e.stopPropagation();
     bar.classList.toggle("collapsed");
+    updateLabel();
   });
 }
 

@@ -373,29 +373,72 @@ document.getElementById("load-chars").addEventListener("click", async ()=>{
 function renderCharList(){
   const box = document.getElementById("char-list");
   document.getElementById("char-count").textContent = CHAR_LIST.length ? `(${CHAR_LIST.length} caricati)` : "";
-  box.innerHTML = CHAR_LIST.map((c, i) => `
+  box.innerHTML = CHAR_LIST.map((c, i) => {
+    const isPrincipale = !!c.principale;
+    const moveLabel = isPrincipale ? "Sposta tra i Viaggiatori" : "Sposta tra i Principali";
+    const color2Row = c.color2 ? `
+      <div class="char-pw-row" style="grid-column:1 / -1;">
+        <input type="color" data-color2-idx="${i}" value="${c.color2}">
+        <button class="secondary small" data-save-color2="${i}">Salva 2° colore</button>
+      </div>` : "";
+    return `
     <div class="char-row">
       <input type="color" data-color-idx="${i}" value="${c.color || '#c9a34e'}">
       <div>
-        <div class="cname">${c.name}</div>
+        <div class="cname">${c.name} <span style="font-weight:400;font-size:10px;color:var(--text-faint);">(${isPrincipale ? "Principale" : "Viaggiatore"})</span></div>
         <div class="cfile">${c.file}</div>
       </div>
       <button class="secondary small" data-save-color="${i}">Salva colore</button>
-      <span></span>
+      <span></span>${color2Row}
       <div class="char-pw-row" style="grid-column:1 / -1;">
         <input type="text" placeholder="Nuova password per ${c.name}" data-pw-input="${i}">
         <button class="secondary small" data-save-pw="${i}">Aggiorna password</button>
       </div>
+      <div style="grid-column:1 / -1;margin-top:2px;">
+        <button class="secondary small" data-move="${i}">${moveLabel}</button>
+      </div>
       <div class="status-line" id="char-status-${i}" style="grid-column:1 / -1;"></div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
   box.querySelectorAll("[data-save-color]").forEach(btn=>{
     btn.addEventListener("click", ()=> updateCharColor(parseInt(btn.dataset.saveColor, 10)));
   });
+  box.querySelectorAll("[data-save-color2]").forEach(btn=>{
+    btn.addEventListener("click", ()=> updateCharColor2(parseInt(btn.dataset.saveColor2, 10)));
+  });
   box.querySelectorAll("[data-save-pw]").forEach(btn=>{
     btn.addEventListener("click", ()=> updateCharPassword(parseInt(btn.dataset.savePw, 10)));
   });
+  box.querySelectorAll("[data-move]").forEach(btn=>{
+    btn.addEventListener("click", ()=> updateCharPrincipale(parseInt(btn.dataset.move, 10)));
+  });
+}
+
+/* Trova l'oggetto {...} del personaggio dentro il testo di index.html */
+function findCharEntry(content, file){
+  const entryRegex = new RegExp(`(\\{[^{}]*file:\\s*["']${file}["'][^{}]*\\})`);
+  const m = content.match(entryRegex);
+  if (!m) throw new Error("Non trovo questo personaggio nell'elenco su GitHub.");
+  return m[1];
+}
+
+/* Aggiorna una variabile CSS --nome:#hex; dentro il file scheda di un personaggio (best-effort:
+   se la scheda non ha ancora quella variabile non blocchiamo l'operazione principale). */
+async function syncSheetCssVar(file, varName, hexColor, commitLabel){
+  try{
+    const sheet = await ghGetFile(file);
+    const re = new RegExp(`--${varName}\\s*:\\s*#[0-9a-fA-F]{3,8}\\s*;`);
+    if (re.test(sheet.content)){
+      const newContent = sheet.content.replace(re, `--${varName}:${hexColor};`);
+      await ghPutFile(file, newContent, sheet.sha, commitLabel);
+      return true;
+    }
+    return false;
+  }catch(e){
+    return false;
+  }
 }
 
 async function updateCharColor(i){
@@ -405,10 +448,7 @@ async function updateCharColor(i){
   setStatus(`char-status-${i}`, "Aggiornamento colore\u2026", "busy");
   try{
     const { content, sha } = await ghGetFile("index.html");
-    const entryRegex = new RegExp(`(\\{[^{}]*file:\\s*["']${c.file}["'][^{}]*\\})`);
-    const entryMatch = content.match(entryRegex);
-    if (!entryMatch) throw new Error("Non trovo questo personaggio nell'elenco su GitHub.");
-    let entry = entryMatch[1];
+    let entry = findCharEntry(content, c.file);
     let newEntry;
     if (/color\s*:/.test(entry)){
       newEntry = entry.replace(/color\s*:\s*["'][^"']*["']/, `color: "${newColor}"`);
@@ -418,7 +458,96 @@ async function updateCharColor(i){
     const newContent = content.replace(entry, newEntry);
     await ghPutFile("index.html", newContent, sha, `Aggiorna colore di ${c.name}`);
     CHAR_LIST[i].color = newColor;
-    setStatus(`char-status-${i}`, "Colore aggiornato \u2713", "ok");
+
+    const synced = await syncSheetCssVar(c.file, "identity", newColor, `Sincronizza colore identit\u00e0 di ${c.name}`);
+    setStatus(`char-status-${i}`, synced
+      ? "Colore aggiornato \u2713 (homepage e scheda sincronizzate)"
+      : "Colore aggiornato \u2713 su homepage. Non ho trovato la variabile colore nella scheda: verificala a mano.", "ok");
+  }catch(e){
+    setStatus(`char-status-${i}`, e.message, "err");
+  }
+}
+
+async function updateCharColor2(i){
+  const c = CHAR_LIST[i];
+  const colorInput = document.querySelector(`[data-color2-idx="${i}"]`);
+  const newColor = colorInput.value;
+  setStatus(`char-status-${i}`, "Aggiornamento 2\u00b0 colore\u2026", "busy");
+  try{
+    const { content, sha } = await ghGetFile("index.html");
+    let entry = findCharEntry(content, c.file);
+    let newEntry;
+    if (/color2\s*:/.test(entry)){
+      newEntry = entry.replace(/color2\s*:\s*["'][^"']*["']/, `color2: "${newColor}"`);
+    } else {
+      newEntry = entry.replace(/\}\s*$/, `, color2: "${newColor}" }`);
+    }
+    const newContent = content.replace(entry, newEntry);
+    await ghPutFile("index.html", newContent, sha, `Aggiorna 2\u00b0 colore di ${c.name}`);
+    CHAR_LIST[i].color2 = newColor;
+
+    const synced = await syncSheetCssVar(c.file, "identity2", newColor, `Sincronizza 2\u00b0 colore identit\u00e0 di ${c.name}`);
+    setStatus(`char-status-${i}`, synced
+      ? "2\u00b0 colore aggiornato \u2713 (homepage e scheda sincronizzate)"
+      : "2\u00b0 colore aggiornato \u2713 su homepage. Non ho trovato la variabile nella scheda: verificala a mano.", "ok");
+  }catch(e){
+    setStatus(`char-status-${i}`, e.message, "err");
+  }
+}
+
+/* Sposta un personaggio tra Principali e Viaggiatori: aggiorna sia il campo "principale"
+   sia l'elenco PRINCIPALI_ORDER dentro index.html, e sincronizza l'etichetta TIPO nella scheda.
+   NON aggiunge/rimuove automaticamente la scheda "Evoluzioni Future": \u00e8 una modifica strutturale
+   al file (nuova voce in TABS + chiamata di rendering) che questo pannello, per sicurezza, non
+   esegue da solo \u2014 va chiesta a parte quando serve davvero. */
+async function updateCharPrincipale(i){
+  const c = CHAR_LIST[i];
+  const willBePrincipale = !c.principale;
+  setStatus(`char-status-${i}`, "Aggiornamento in corso\u2026", "busy");
+  try{
+    const idx = await ghGetFile("index.html");
+    let content = idx.content;
+
+    let entry = findCharEntry(content, c.file);
+    let newEntry;
+    if (/principale\s*:/.test(entry)){
+      newEntry = entry.replace(/principale\s*:\s*(true|false)/, `principale: ${willBePrincipale}`);
+    } else {
+      newEntry = entry.replace(/\}\s*$/, `, principale: ${willBePrincipale} }`);
+    }
+    content = content.replace(entry, newEntry);
+
+    const orderMatch = content.match(/const PRINCIPALI_ORDER = (\[[^\]]*\]);/);
+    if (!orderMatch) throw new Error("Non trovo PRINCIPALI_ORDER in index.html.");
+    let orderArr = new Function("return " + orderMatch[1])();
+    if (willBePrincipale){
+      if (!orderArr.includes(c.name)) orderArr.push(c.name);
+    } else {
+      orderArr = orderArr.filter(n => n !== c.name);
+    }
+    const newOrderLiteral = "[" + orderArr.map(n => `"${n}"`).join(", ") + "]";
+    content = content.replace(orderMatch[0], `const PRINCIPALI_ORDER = ${newOrderLiteral};`);
+
+    await ghPutFile("index.html", content, idx.sha, `Sposta ${c.name} tra i ${willBePrincipale ? "Principali" : "Viaggiatori"}`);
+    CHAR_LIST[i].principale = willBePrincipale;
+
+    const newTipo = willBePrincipale ? "PRINCIPALE" : "VIAGGIATORE";
+    let tipoSynced = false;
+    try{
+      const sheet = await ghGetFile(c.file);
+      const tipoRe = /tipo\s*:\s*"[^"]*"/;
+      if (tipoRe.test(sheet.content)){
+        const newSheetContent = sheet.content.replace(tipoRe, `tipo: "${newTipo}"`);
+        await ghPutFile(c.file, newSheetContent, sheet.sha, `Sincronizza TIPO di ${c.name}`);
+        tipoSynced = true;
+      }
+    }catch(e){ /* best-effort, non blocca lo spostamento gi\u00e0 riuscito */ }
+
+    renderCharList();
+    const tipoNote = tipoSynced ? "" : " (etichetta TIPO nella scheda non trovata: verificala a mano)";
+    setStatus(`char-status-${i}`,
+      `Spostato tra i ${willBePrincipale ? "Principali" : "Viaggiatori"} \u2713${tipoNote}. Se deve anche guadagnare/perdere la scheda "Evoluzioni Future", chiedilo a parte: il pannello non la tocca in automatico.`,
+      "ok");
   }catch(e){
     setStatus(`char-status-${i}`, e.message, "err");
   }
