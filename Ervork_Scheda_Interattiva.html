@@ -285,6 +285,16 @@
   }
   .rich:focus{outline:none;border-color:var(--gold);}
   .rich b, .rich strong{color:var(--gold-bright);}
+  /* Editor Master: consente di ridimensionare verticalmente (drag dell'angolo in basso
+     a destra) i riquadri di testo modificabili, sullo stesso principio già usato per le
+     Note. Attivo solo quando l'Editor Master è acceso (classe su <body>), quindi mai
+     visibile o utilizzabile in modalità giocatore. */
+  body.master-editor-on .rich[contenteditable]{
+    resize:vertical;overflow:auto;min-height:60px;
+  }
+  body.master-editor-on .inv-item-desc{
+    resize:vertical;overflow:auto;min-height:44px;
+  }
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
   .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
@@ -802,15 +812,15 @@ const DEFAULT_STATE = {
   equipDettagli: "<p id=\"anchor-spade-gemelle-del-caos\"><b>Spade Gemelle del Caos:</b> danni 2d6 a spada, attacco doppio. La spada rossa (quella del coraggio) conferisce al possessore la capacit\u00e0 di aumentare caratteristiche basiche in maniera esponenziale come forza, velocit\u00e0, resistenza, cura, magie da lancio, in pi\u00f9 causa danni incendiari o esplosivi 1d4. La spada blu (quella dell'anima) ha la capacit\u00e0 di indebolire esponenzialmente i nemici colpiti affaticandoli privandoli di determinate abilit\u00e0 o capacit\u00e0 a discrezione del possessore dell'arma ovviamente nelle possibilit\u00e0 della stessa, e molto spesso causa danni necrotici al nemico.(1d4 danni elettrici o necrotici).</p><p><b>Croce di Ameth:</b> oggetto maledetto, presenta delle inscrizioni in demoniaco incise (lasciate la speranza di voler vivere e concepire la morte come unica via di fuga), la croce veniva usata dal demone superiore Obelix per imprigionare per divertimento i suoi sottoposti o chiunque si opponesse al suo volere, fedele servitore di Anubis. Obelix era considerato il flagello degli schiavi, evocava catene o imprigionava gli schiavi in torture mai viste prima. La croce era il suo pendaglio preferito, se utilizzato da un demone conferisce la possibilit\u00e0 di evocare delle catene e poterle utilizzare come meglio si preferisce, le stesse hanno un attacco che intrappola il nemico facendogli patire le peggiori pene mentali e fisiche decise dal demone 2d6 ogni turno x 2 turni max 1 volta a scontro CD 16. La croce in pi\u00f9 conferisce la facolt\u00e0 di evocare raggi laser dagli occhi come lo stesso Obelix, danno a distanza, 8d6, sia le catene che il raggio laser possono essere aggiunti al rooster delle abilit\u00e0 del demone. Ovviamente il raggio laser utilizzerebbe uno slot attacco ma non uno abilit\u00e0 considerando che stia venendo lanciato dall'oggetto e non dal giocatore.(vedi tabella poteri lvl 7)</p>",
 
   inventario: [
-    ["\u2713","Anello di Fey","1","+1 Intelligenza se si usano altri oggetti o indumenti Arcani.",""],
-    ["\u2713","Fodero Spade","3","+1 ai tiri per colpire.",""],
-    ["\u2713","Meridiana","2","Comune bussola che indica il nord (leggermente danneggiata).",""],
+    ["\u2713","Anello di Fey","1","+1 Intelligenza se usi altri oggetti o indumenti Arcani.",""],
+    ["\u2713","Fodero Spade","3","+1 Tiri per colpire.",""],
+    ["\u2713","Meridiana","2","Una comune bussola che indica il nord (leggermente danneggiata).",""],
     ["\u2713","I Conquistatori (libro)","1","",""],
-    ["\u2713","Erbe Mediche x5","4","Ristabiliscono 1d6 PF a utilizzo, max due contemporaneamente.",""],
-    ["\u2713","Gemma Rossa (Demoniaca)","1","Poteri sconosciuti. Ottenuta dopo lo scontro con l'Aboleth, sul vulcano Zola a Sadarill (opera di Malakit).",""],
-    ["\u2713","Gemma Gialla (Demoniaca)","1","Poteri sconosciuti. Ottenuta dopo lo scontro con Ra e Anubis, nelle antiche Piramidi di Nogdrim a Sadarill (opera di Malakit).",""],
+    ["\u2713","Erbe Mediche x5","4","Erbe in grado di ristabilire 1d6 ad utilizzo, utilizzabili max due contemporaneamente (x5).",""],
+    ["\u2713","Gemma Rossa (Demoniaca)","1","Gemma rossa, dai poteri sconosciuti, ottenuta alla fine del combattimento contro l'essere Aboleth, sul vulcano Zola sito a Sadarill, opera di Malakit.",""],
+    ["\u2713","Gemma Gialla (Demoniaca)","1","Gemma gialla, dai poteri sconosciuti, ottenuta alla fine del combattimento contro gli esseri Ra e Anubis, nelle antiche Piramidi di Nogdrim site a Sadarill, opera di Malakit.",""],
     ["\u2713","2600 monete","5","",""],
-    ["\u2713","Lancia e Avambraccio","10","Pezzi dell'essere C1P110, ritrovati nei fondali marini di Sadarill; materiale ferroso tendente al bronzo, molto pesante.",""],
+    ["\u2713","Lancia e Avambraccio","10","Pezzi di essere(C1P110) ritrovato a fine combattimento nei fondali marini di Sadarill, composti in materiale ferroso di colore tendente al bronzo, molto pesante.",""],
     ["\u2713","Pendaglio di Anulax","1","Un antico pendente crato dal corpo di un demone minore noto come Anulax, forgiato per contenere energie oscure fuori controllo. Il cristallo incastonato al centro vibra leggermente quando \u00e8 vicino o percepisce fonti di potere instabile, il pendaglio assorbe parte dell'energia instabile, riducendo il rischio di effetti collaterali pericolosi e diminuendo nettamente la forza dell'abilit\u00e0 usata. Una volta per riposo lungo, pu\u00f2 essere usato per neutralizzare un fallimento critico legato all'uso di questi poteri (permette di fieffettuare il tiro se estemanebte necessario, avendo un bonus di + 5 sul tiro).",""],
     ["\u2713","Bussola di Davy Jones","1","Questa bussola magica non punta verso il nord, ma verso qualsiasi luogo scelto dal possessore solo se esso \u00e8 ci\u00f2 che realmente desidera raggiungere. \u00c8 un oggetto raro e ricercato dai pirati e malfattori con buone conoscenze esoteriche.",""],
     ["\u2713","Scorte da campo","0","",""]
@@ -824,6 +834,7 @@ const DEFAULT_STATE = {
     {nome:"Cordialit\u00e0 Demoniaca", tag:"Passiva", desc:"Ogni scontro inizia con un tiro bonus su Trasformazione in accordo col demone. Sceso a 10 PF o meno, ottiene un tiro extra per risvegliare il demone. Una volta trasformato, pu\u00f2 mantenere la forma per tutto lo scontro subendo solo 1d10 danni necrotici (decurtati a fine scontro)."}
   ],
 
+  abilita: [],
   divergenzaIntro: "Ervork usufruisce di <b>7 slot</b> esclusivamente per abilit\u00e0 attive; il resto \u00e8 considerato <b>trucchetto</b>, con CD propria e usi limitati per riposo lungo. I tiri delle abilit\u00e0 si effettuano come <b>Trasformazione</b>, CD 16, che scala su Costituzione.",
   ambiti: [
     ["Ipnotismo","Piega il volere del nemico entro 5 caselle: esegue temporaneamente gli ordini del demone (alcuni imperativi possono non funzionare). Nessun effetto su creature pure.<br><br>Durata 3 turni; a fine effetto, con un'azione disponibile, pu\u00f2 ripetere automaticamente il tiro."],
@@ -961,6 +972,7 @@ const BLANK_STATE = {
   capacitaMax: 50,
 
   passive: [],
+  abilita: [],
   divergenzaIntro: "", ambiti: [], campiAttiva: [], divergenzaAttivaNote: "", divergenzaPassiva: "",
   truccetti: [],
 
@@ -1708,6 +1720,7 @@ const MASTER_EDITOR_KEY = "morgedal-master-editor";
 const MASTER_CATS = [
   { key:"passive", label:"Passiva" },
   { key:"truccetti", label:"Truccetto" },
+  { key:"abilita", label:"Abilità" },
   { key:"risorse", label:"Risorsa" },
   { key:"ambiti", label:"Ambito" },
   { key:"campiAttiva", label:"Campo" }
@@ -1728,6 +1741,7 @@ function masterToCanonical(cat, item){
   }
   if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
   if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "abilita") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Abilità", width:item.width||1 };
   if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
   return { nome:"", desc:"", width:1 };
 }
@@ -1737,6 +1751,7 @@ function masterFromCanonical(cat, c){
   }
   if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
   if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "abilita") return { nome:c.nome||"Nuova Abilità", tag:c.tag||"Abilità", desc:c.desc||"", width:c.width||1 };
   if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
   return { nome:c.nome||"", desc:c.desc||"" };
 }
@@ -1874,6 +1889,7 @@ function initMasterEditorToggle(){
     const on = isMasterEditorOn();
     btn.classList.toggle("on", on);
     btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+    document.body.classList.toggle("master-editor-on", on);
   };
   refresh();
   btn.addEventListener("click", ()=>{
@@ -1932,6 +1948,19 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const abilitaHtml = STATE.abilita.map((a,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("abilita", i) : "";
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="abilita|${i}|nome" value="${esc(a.nome)}">`
+      : `<h3>${a.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(a.nome)}"${masterBoxStyle("abilita", i)}>
+      ${toolbar}
+      <span class="tag tag-abilita">Abilità</span>
+      ${nameField}
+      <div class="rich" contenteditable="true" data-rich-arr="abilita-${i}">${a.desc}</div>
+    </div>`;
+  }).join("");
+
   const truccettiHtml = STATE.truccetti.map((t,i)=>{
     const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
     const usoField = masterOn
@@ -1966,6 +1995,7 @@ function renderPoteri(){
 
     <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
     <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
+    ${(STATE.abilita.length || masterOn) ? `<div class="card"><h2>Abilità</h2>${abilitaHtml}${masterOn ? masterNewBoxBtn("abilita", "Abilità") : ""}</div>` : ""}
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -2137,7 +2167,9 @@ function renderInvTable(){
   tbody.querySelectorAll('[data-inv-desc]').forEach(c=>{
     autoGrowTextarea(c);
     c.addEventListener("input",()=>{
-      STATE.inventario[c.dataset.invDesc][3] = c.value; autoGrowTextarea(c); queueSave();
+      STATE.inventario[c.dataset.invDesc][3] = c.value;
+      if (!isMasterEditorOn()) autoGrowTextarea(c);
+      queueSave();
     });
   });
   tbody.querySelectorAll('[data-inv-del]').forEach(c=>c.addEventListener("click",()=>{

@@ -269,6 +269,16 @@
   }
   .rich:focus{outline:none;border-color:var(--gold);}
   .rich b, .rich strong{color:var(--gold-bright);}
+  /* Editor Master: consente di ridimensionare verticalmente (drag dell'angolo in basso
+     a destra) i riquadri di testo modificabili, sullo stesso principio già usato per le
+     Note. Attivo solo quando l'Editor Master è acceso (classe su <body>), quindi mai
+     visibile o utilizzabile in modalità giocatore. */
+  body.master-editor-on .rich[contenteditable]{
+    resize:vertical;overflow:auto;min-height:60px;
+  }
+  body.master-editor-on .inv-item-desc{
+    resize:vertical;overflow:auto;min-height:44px;
+  }
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
   .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
@@ -781,7 +791,7 @@ const DEFAULT_STATE = {
   equipDettagli: "<p id=\"anchor-scettro-dell-amplificazione\"><b>Scettro dell'Amplificazione:</b> Lo Scettro dell'Amplificazione \u00e8 uno scettro magico concepito non soltanto per canalizzare il potere del proprio utilizzatore, ma per amplificarne l'intensit\u00e0 durante il passaggio attraverso il catalizzatore. Non possiede una fonte di energia autonoma: il potere che manifesta proviene sempre da chi lo impugna, ma lo scettro \u00e8 in grado di accentuarne la forza. Nel corso del tempo lo scettro \u00e8 stato pesantemente modificato per permetterne l'utilizzo anche come arma corpo a corpo. Le modifiche hanno reso la sua struttura molto pi\u00f9 adatta agli impatti e hanno portato all'aggiunta di numerosi spuntoni, capaci di rendere particolarmente violenti i colpi inferti senza compromettere la sua funzione originaria di catalizzatore magico.<br><i>Colpo dello Scettro:</i> quando viene utilizzato come arma corpo a corpo, infligge 8d6 danni fisici. Ogni impatto pu\u00f2 inoltre far affiorare una manifestazione imprevedibile della Divergenza. Tale manifestazione non \u00e8 sotto il controllo diretto di Aggron e non pu\u00f2 essere scelta o prevista con certezza: il potere amplificato dallo scettro pu\u00f2 liberarsi spontaneamente al momento dell'impatto, generando un effetto completamente casuale legato alla natura stessa della Divergenza. (Ricorda al MASTER) <br><i>Dissonanza:</i> utilizzando lo scettro nella sua funzione di catalizzatore, Aggron pu\u00f2 concentrare la Divergenza e manifestarla direttamente verso un bersaglio, infliggendo 7d6 danni da Divergenza a distanza. La Dissonanza non possiede una forma prestabilita: pu\u00f2 manifestarsi come un globo, un raggio, una scarica, un fulmine, un impulso d'aria o qualsiasi altra configurazione coerente con il modo in cui Aggron decide di incanalare il proprio potere. La sua manifestazione pu\u00f2 richiamare uno dei differenti ambiti nei quali Aggron ha imparato a riconoscere la Divergenza: Probabilit\u00e0, Causalit\u00e0, Tempismo, Deviazione, Alterazione e Manifestazione. Lo scettro dunque, imbriglia il potere della Divergenza fino a usarla come vero e proprio attacco fisico, ragion per cui, una volta utilizzata la Dissonanza, la capacit\u00e0 offensiva \u201cmagica\u201d di Aggorn durante il turno viene considerata esaurita, caso contrario per quella difensiva e di supporto che richiede meno potere per essere emanata. (Max Incantesimi di LvL 3)</p><p><b>Amuleto di Elusione:</b> Piccolo artefatto magico creato per interferire con incantesimi, capacit\u00e0 e strumenti utilizzati per localizzare o rintracciare il possessore. Una volta per riposo lungo pu\u00f2 incanalare potere da un incantesimo avversario tirando un D20, con successo pu\u00f2 assorbirlo e trasmutarlo in potere Divergente (2D6 uno per lvl slot e uno per quantit). Aggron lo conserva soprattutto per diminuire le possibilit\u00e0 di essere individuato durante i propri spostamenti, caratteristica particolarmente preziosa per qualcuno che ha trascorso gran parte della propria esistenza cercando di non essere trovato. La testa istintiva continua a sostenere che esista un metodo molto pi\u00f9 semplice: \u00abnon stare dove ti cercano\u00bb.</p><p id=\"anchor-bombe-chiodate-x3\"><b>Bombe Chiodate x3:</b> Comuni bombe trovate o acquistate nel corso dei viaggi e successivamente \u00abmigliorate\u00bb fissando attorno all'involucro chiodi, viti e piccoli frammenti metallici. L'esplosione proietta la ferraglia circostante aumentando la pericolosit\u00e0 dell'ordigno. Infliggono 2d6 danni ad area 5 caselle.</p><p id=\"anchor-mazzetti-di-ferraglia-x4\"><b>Mazzetti di Ferraglia x4:</b> Grossi bulloni, dadi, rondelle e pezzi metallici legati strettamente tra loro con filo e piccole strisce di cuoio. \u00abSe un pezzo di ferro fa male, tanti pezzi di ferro insieme fanno pi\u00f9 male\u00bb. Possono essere scagliati contro un bersaglio lanciati per terra per rendere pi\u00f9 ostico il terreno calpestabile. 1d12 danni fisici ad area 5 caselle. (possono essere recuperati dopo lo scontro)</p><p id=\"anchor-sacchetti-di-schegge-x3\"><b>Sacchetti di Schegge x3:</b> Piccoli sacchetti riempiti con frammenti di metallo, vetro, pietre appuntite e qualsiasi altro materiale abbastanza fastidioso da calpestare. Possono essere lanciati o strappati sul terreno creando rapidamente una piccola zona pericolosa; chi la attraversa pu\u00f2 subire 1d6 danni e vedere ostacolato il proprio movimento.</p><p><b>Laccio con Pesi:</b> Una corda resistente alle cui estremit\u00e0 sono stati fissati due pesanti pezzi di metallo di forma completamente differente. Pu\u00f2 essere lanciato contro gambe o arti di un bersaglio per ostacolarne il movimento, farlo cadere o intralciarlo temporaneamente. \u00abdue pesi diversi girano meglio perch\u00e9 non sanno dove andare\u00bb.</p>",
 
   inventario: [
-    ["\u2713","5000 monete","5","Il classico tesoretto da viandante.",""],
+    ["\u2713","5000 monete","5","",""],
     ["\u2713","Pozione dell'Accrescimento x3","3","Pozioni rare e difficilmente reperibili capaci di aumentare temporaneamente la stazza e la potenza fisica di Aggron, conferendogli +2d6 a tutti i danni fisici corpo a corpo per l'intera durata dell'effetto. La durata della trasformazione \u00e8 tuttavia imprevedibile: normalmente dovrebbe mantenersi per circa 4 turni, ma le pozioni tendono spesso a prolungare autonomamente il proprio effetto per un periodo variabile, senza che Aggron sia mai riuscito a comprenderne completamente il motivo. La testa istintiva considera questa imprevedibilit\u00e0 un pregio e continua a sostenere che \u00abfinch\u00e9 siamo grossi, vuol dire che non abbiamo ancora finito\u00bb.",""],
     ["\u2713","Pozione della Riduzione x3","3","Pozioni rare capaci di ridurre temporaneamente la stazza di Aggron, permettendogli di attraversare passaggi e ambienti normalmente incompatibili con le sue dimensioni e conferendogli +2 a Destrezza per l'intera durata dell'effetto. Anche in questo caso la durata \u00e8 imprevedibile: normalmente dovrebbe mantenersi per circa 4 turni, ma pu\u00f2 protrarsi autonomamente per un periodo molto pi\u00f9 lungo. La testa istintiva accetta di berla soltanto dopo essersi assicurata personalmente che \u00abla porta abbia vinto\u00bb.",""],
     ["\u2713","Cappa Cangiante","4","Enorme cappa adattata alla corporatura di Aggron, capace di modificare progressivamente colore e tonalit\u00e0 in base all'ambiente circostante, permettendogli di mimetizzarsi quando rimane sufficientemente fermo. Aggron la utilizza soprattutto durante il riposo, quando deve trascorrere molte ore nello stesso luogo senza attirare attenzioni. La testa istintiva ne ha immediatamente compreso l'utilit\u00e0: \u00abse non mi vedono, non mi svegliano\u00bb.",""],
@@ -808,6 +818,7 @@ const DEFAULT_STATE = {
     {nome:"Dualit\u00e0 Bicefala", tag:"Passiva", desc:"Aggron possiede due teste, ma soprattutto due coscienze completamente distinte che condividono lo stesso corpo. Ognuna pensa, osserva, ricorda e interpreta ci\u00f2 che accade in maniera autonoma; ci\u00f2 che viene vissuto direttamente da una delle due non viene necessariamente acquisito anche dall'altra. Questa indipendenza rimane evidente persino durante il riposo. Le due teste possono infatti dormire separatamente, permettendo a una di rimanere sveglia mentre l'altra riposa. In questo modo Aggron pu\u00f2 continuare a sorvegliare l'ambiente, osservare ci\u00f2 che accade o svolgere semplici attivit\u00e0 senza interrompere completamente il proprio riposo. Al risveglio, tuttavia, la testa che ha dormito non conosce automaticamente ci\u00f2 che \u00e8 accaduto durante quel periodo e deve farselo raccontare dal proprio \u201cfratello\u201d. La stessa separazione mentale continua a esistere durante il combattimento. Sebbene una delle due teste assuma il controllo principale del corpo, l'altra non diventa completamente passiva e conserva un piccolo margine di autonomia. Per questo motivo, oltre alla normale azione della testa dominante, Aggron dispone una volta per turno di una Azione del Fratello, considerata come Azione Bonus, attraverso la quale la testa non dominante pu\u00f2 compiere un intervento limitato che non richieda il controllo completo del corpo. Quando il controllo appartiene alla testa istintiva, quella intelligente pu\u00f2 sfruttare questo margine per intervenire attraverso capacit\u00e0 di supporto relativamente semplici, come potenziare Aggron, indebolire un avversario o utilizzare manifestazioni e incantesimi fino a un massimo equivalente al 3\u00b0 livello. Quando invece il controllo appartiene alla testa intelligente, quella istintiva pu\u00f2 utilizzare una mano libera per interagire con uno dei propri strumenti improvvisati, lanciare un oggetto, utilizzare un piccolo diversivo, predisporre una semplice trappola o compiere un'altra azione compatibile con il limitato controllo di una parte del corpo."}
   ],
 
+  abilita: [],
   divergenzaIntro: "Ogni fenomeno tende naturalmente verso un decorso atteso, seguendo una successione di cause, probabilit\u00e0 e conseguenze. In Aggron esiste tuttavia un potere innato capace di interferire con questo equilibrio, producendo quella che la testa pi\u00f9 intelligente ha imparato a definire <b>Divergenza</b>: un'alterazione anomala del normale corso degli eventi, attraverso la quale ci\u00f2 che dovrebbe accadere pu\u00f2 deviare verso un esito differente, improbabile o completamente inatteso. La Divergenza non rappresenta una forma tradizionale di magia e Aggron stesso non ne conosce realmente l'origine. Essa sembra appartenere alla sua natura e lo accompagna indipendentemente dalla sua volont\u00e0, manifestandosi attraverso coincidenze, deviazioni, concatenazioni improbabili ed eventi che sembrano alterare continuamente il rapporto tra caso, probabilit\u00e0 e conseguenza. Nel corso dei millenni la testa pi\u00f9 intelligente ha osservato queste anomalie e ha tentato di comprenderne il funzionamento, arrivando progressivamente a riconoscere alcuni degli ambiti nei quali la Divergenza sembra manifestarsi con maggiore frequenza. Questi non rappresentano differenti forme di magia n\u00e9 costituiscono necessariamente tutti i modi attraverso i quali la Divergenza pu\u00f2 agire: sono semplicemente i principali fenomeni che Aggron \u00e8 riuscito, fino ad oggi, a distinguere e classificare.",
   ambiti: [
     ["Probabilit\u00e0","La Divergenza pu\u00f2 modificare la possibilit\u00e0 che un determinato evento si verifichi. Qualcosa di estremamente improbabile pu\u00f2 improvvisamente accadere, mentre un evento apparentemente quasi certo pu\u00f2 non verificarsi affatto. Una coincidenza impossibile, un errore nel momento esatto o una possibilit\u00e0 infinitesimale possono quindi assumere improvvisamente un peso reale nel corso degli eventi."],
@@ -900,6 +911,7 @@ const BLANK_STATE = {
   capacitaMax: 50,
 
   passive: [],
+  abilita: [],
   divergenzaIntro: "", ambiti: [], campiAttiva: [], divergenzaAttivaNote: "", divergenzaPassiva: "",
   truccetti: [],
 
@@ -1609,6 +1621,7 @@ const MASTER_EDITOR_KEY = "morgedal-master-editor";
 const MASTER_CATS = [
   { key:"passive", label:"Passiva" },
   { key:"truccetti", label:"Truccetto" },
+  { key:"abilita", label:"Abilità" },
   { key:"risorse", label:"Risorsa" },
   { key:"ambiti", label:"Ambito" },
   { key:"campiAttiva", label:"Campo" }
@@ -1629,6 +1642,7 @@ function masterToCanonical(cat, item){
   }
   if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
   if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "abilita") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Abilità", width:item.width||1 };
   if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
   return { nome:"", desc:"", width:1 };
 }
@@ -1638,6 +1652,7 @@ function masterFromCanonical(cat, c){
   }
   if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
   if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "abilita") return { nome:c.nome||"Nuova Abilità", tag:c.tag||"Abilità", desc:c.desc||"", width:c.width||1 };
   if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
   return { nome:c.nome||"", desc:c.desc||"" };
 }
@@ -1775,6 +1790,7 @@ function initMasterEditorToggle(){
     const on = isMasterEditorOn();
     btn.classList.toggle("on", on);
     btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+    document.body.classList.toggle("master-editor-on", on);
   };
   refresh();
   btn.addEventListener("click", ()=>{
@@ -1833,6 +1849,19 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const abilitaHtml = STATE.abilita.map((a,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("abilita", i) : "";
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="abilita|${i}|nome" value="${esc(a.nome)}">`
+      : `<h3>${a.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(a.nome)}"${masterBoxStyle("abilita", i)}>
+      ${toolbar}
+      <span class="tag tag-abilita">Abilità</span>
+      ${nameField}
+      <div class="rich" contenteditable="true" data-rich-arr="abilita-${i}">${a.desc}</div>
+    </div>`;
+  }).join("");
+
   const truccettiHtml = STATE.truccetti.map((t,i)=>{
     const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
     const usoField = masterOn
@@ -1867,6 +1896,7 @@ function renderPoteri(){
 
     <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
     <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
+    ${(STATE.abilita.length || masterOn) ? `<div class="card"><h2>Abilità</h2>${abilitaHtml}${masterOn ? masterNewBoxBtn("abilita", "Abilità") : ""}</div>` : ""}
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -2038,7 +2068,9 @@ function renderInvTable(){
   tbody.querySelectorAll('[data-inv-desc]').forEach(c=>{
     autoGrowTextarea(c);
     c.addEventListener("input",()=>{
-      STATE.inventario[c.dataset.invDesc][3] = c.value; autoGrowTextarea(c); queueSave();
+      STATE.inventario[c.dataset.invDesc][3] = c.value;
+      if (!isMasterEditorOn()) autoGrowTextarea(c);
+      queueSave();
     });
   });
   tbody.querySelectorAll('[data-inv-del]').forEach(c=>c.addEventListener("click",()=>{

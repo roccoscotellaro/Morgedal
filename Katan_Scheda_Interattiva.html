@@ -276,6 +276,16 @@
   }
   .rich:focus{outline:none;border-color:var(--gold);}
   .rich b, .rich strong{color:var(--gold-bright);}
+  /* Editor Master: consente di ridimensionare verticalmente (drag dell'angolo in basso
+     a destra) i riquadri di testo modificabili, sullo stesso principio già usato per le
+     Note. Attivo solo quando l'Editor Master è acceso (classe su <body>), quindi mai
+     visibile o utilizzabile in modalità giocatore. */
+  body.master-editor-on .rich[contenteditable]{
+    resize:vertical;overflow:auto;min-height:60px;
+  }
+  body.master-editor-on .inv-desc{
+    resize:vertical;overflow:auto;min-height:44px;
+  }
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
   .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
@@ -801,23 +811,23 @@ const DEFAULT_STATE = {
   equipDettagli: "<p><b>Stella del Mattino Armato (Arma Livelliana):</b> Arma di luce perpetua Danni 3d6+2 ad attacco <u>(se usata in presenza del sole in aggiunta 1d6 danni incendiari 2 volte a scontro, che possono essere usati anche tutti in un singolo attacco)</u>. Evoca casualmente dal cielo un fascio di luce che colpisce il nemico pesantemente fuoco immortale di Ra(ogni tanto avvisare il DM). Chiunque colpisca il pg subisce 1d4 danni incendiari di giorno x 5 turni, di notte x 2 turni.</p><p><b>Armatura di Garadet:</b> L'armatura del grande Garadet, non ha peculiarità particolari è solo fatta di Adamantio uno dei metalli più spessi mai visti nel mondo di Morgedal. Si narra però che nelle sue battaglie, Garadet sembrasse quasi essere aiutato dalla natura e i suoi derivati, quasi come se fossero un tutt'uno, ma nessuno ha mai potuto constatare con certezza se questo dipendesse dalle sue abilità di Ranger Druido o dal suo equipaggiamento. + 4 alla CA</p>",
 
   inventario: [
-    ["\u2713","Bifocali del Basilisco","2","Permettono di vedere fino a 100 metri anche in condizioni avverse (nebbia, notte).",""],
+    ["\u2713","Bifocali del Basilisco","2","Permettono di vedere fino a 100mt anche in condizioni avverse (nebbia,notte).",""],
     ["\u2713","Razziario Moregddaliano (libro)","2","",""],
     ["\u2713","Usi e Costumi Apaci (libro)","1","",""],
-    ["\u2713","Lazo Corda con Finitura Dorata","3","Pu\u00f2 facilmente addomesticare qualunque essere, 3 metri.",""],
+    ["\u2713","Lazo Corda con Finitura Dorata","3","Pu\u00f2 facilmente addomesticare qualunque essere, 3m.",""],
     ["\u2713","Mini Meridiana","2","",""],
     ["\u2713","5 Erbe Mediche Superiori","2","",""],
-    ["\u2713","9 Coltelli Bilama","9","1d8 \u2014 possono colpire due volte se lanciati bene.",""],
-    ["\u2713","3 Coltelli da Lancio","3","1d4.",""],
-    ["\u2713","Bussola Nera","1","Pergamena con scritto \u201cAddio mondo crudele\u201d \u2014 apparentemente strana.",""],
+    ["\u2713","9 Coltelli Bilama","9","Possono colpire due volte se lanciati bene, 1D8.",""],
+    ["\u2713","3 Coltelli da Lancio","3","1D4.",""],
+    ["\u2713","Bussola Nera","1","Pergamena con scritto \u201cAddio mondo crudele\u201d: apparentemente strana.",""],
     ["\u2713","6 Pergamene Magiche","1","",""],
     ["\u2713","Pergamena del Capitano","1","",""],
     ["\u2713","Lettera Ordini del Re","1","Rubata dal capitano.",""],
-    ["\u2713","Pietre Preziose Rosse (Rubini)","5","Valore stimato: circa 4000 monete d'oro. Custodite nell'armadio a Cattedral Oesis.",""],
+    ["\u2713","Pietre Preziose Rosse (Rubini)","5","Valore stimato: circa 4000 monete d'oro (custodite nell'armadio C.Oesis).",""],
     ["\u2713","8000 Monete d'Oro","8","Da dividere iniquamente, perch\u00e9 tanto gli altri non sanno neanche che le ho sgraffignate (eheheh).",""],
     ["\u2713","6794 Monete d'Oro","6","",""],
-    ["\u2713","Pezzo di Stoffa d'Armatura (rosso/bordeaux)","0","",""],
-    ["\u2713","10 Scorte da Campo (coda di pesce con sale)","0","",""],
+    ["\u2713","Pezzo di Stoffa d'Armatura (rosso/bordeau)","0","",""],
+    ["\u2713","10 Scorte da Campo (coda di pesce con sale)","0","Necessit\u00e0, 5+5+5 (+10 se fa freddo).",""],
     ["\u2713","3 Pietre Focaie","0","",""]
   ],
   capacitaMax: 50,
@@ -829,6 +839,7 @@ const DEFAULT_STATE = {
     {nome:"Risentimento verso gli Orchi", tag:"Tratto caratteriale", desc:"Prova un forte risentimento nei confronti degli orchi."}
   ],
 
+  abilita: [],
   divergenzaIntro: "Katan usufruisce di <b>7 slot</b> esclusivamente per abilit\u00e0 attive; il resto \u00e8 considerato <b>trucchetto</b>, con CD propria e usi limitati per riposo lungo (riposo lungo).<br><br><b>Abilit\u00e0 Telecinetiche:</b> Katan pu\u00f2 usare la telecinesi come preferisce, con un unico tiro su <b>TELECINESI, CD 16</b>, scalante su Forza. Impiegata in attacco, infligge <b>8d6+2</b> danni. Impiegata in abilit\u00e0 (Schianto, Attacco Poderoso (Sommato ad un attacco normale il danno \u00e8 di 2d10), Scudo Telecinetico, Aura Telecinetica, ecc.), dura fino a 6 turni. Se usata solo per spostare oggetti o persone, non richiede slot. Utilizzabile con azioni bonus, ma non con attacchi bonus.<br><br><b>Super Abilit\u00e0:</b> il personaggio concentra la propria energia telecinetica e la convoglia nel corpo stesso, scegliendo di potenziare una delle sue caratteristiche fondamentali per tutta la durata dello scontro.",
   ambiti: [
     ["Forza","<b>La forza rappresenta la potenza muscolare e la brutalità degli impatti.</b> Quando viene potenziata, i colpi del personaggio assumono un'enorme intensità fisica: un singolo attacco corpo a corpo infligge <b>14d6</b> danni fisici, mentre gli attacchi con armi ottengono un <b>+3d6</b> ai danni, con l'ulteriore effetto di scagliare i nemici lontano grazie alla spinta telecinetica.","Super Abilit\u00e0 per Caratteristica"],
@@ -941,6 +952,7 @@ const BLANK_STATE = {
   capacitaMax: 50,
 
   passive: [],
+  abilita: [],
   divergenzaIntro: "", ambiti: [], campiAttiva: [], divergenzaAttivaNote: "", divergenzaPassiva: "",
   truccetti: [],
 
@@ -1650,6 +1662,7 @@ const MASTER_EDITOR_KEY = "morgedal-master-editor";
 const MASTER_CATS = [
   { key:"passive", label:"Passiva" },
   { key:"truccetti", label:"Truccetto" },
+  { key:"abilita", label:"Abilità" },
   { key:"risorse", label:"Risorsa" },
   { key:"ambiti", label:"Ambito" },
   { key:"campiAttiva", label:"Campo" }
@@ -1670,6 +1683,7 @@ function masterToCanonical(cat, item){
   }
   if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
   if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "abilita") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Abilità", width:item.width||1 };
   if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
   return { nome:"", desc:"", width:1 };
 }
@@ -1679,6 +1693,7 @@ function masterFromCanonical(cat, c){
   }
   if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
   if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "abilita") return { nome:c.nome||"Nuova Abilità", tag:c.tag||"Abilità", desc:c.desc||"", width:c.width||1 };
   if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
   return { nome:c.nome||"", desc:c.desc||"" };
 }
@@ -1816,6 +1831,7 @@ function initMasterEditorToggle(){
     const on = isMasterEditorOn();
     btn.classList.toggle("on", on);
     btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+    document.body.classList.toggle("master-editor-on", on);
   };
   refresh();
   btn.addEventListener("click", ()=>{
@@ -1881,6 +1897,19 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const abilitaHtml = STATE.abilita.map((a,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("abilita", i) : "";
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="abilita|${i}|nome" value="${esc(a.nome)}">`
+      : `<h3>${a.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(a.nome)}"${masterBoxStyle("abilita", i)}>
+      ${toolbar}
+      <span class="tag tag-abilita">Abilità</span>
+      ${nameField}
+      <div class="rich" contenteditable="true" data-rich-arr="abilita-${i}">${a.desc}</div>
+    </div>`;
+  }).join("");
+
   const truccettiHtml = STATE.truccetti.map((t,i)=>{
     const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
     const usoField = masterOn
@@ -1915,6 +1944,7 @@ function renderPoteri(){
 
     <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
     <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
+    ${(STATE.abilita.length || masterOn) ? `<div class="card"><h2>Abilità</h2>${abilitaHtml}${masterOn ? masterNewBoxBtn("abilita", "Abilità") : ""}</div>` : ""}
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -2075,7 +2105,7 @@ function renderInvTable(){
     autoGrowTextarea(c);
     c.addEventListener("input",()=>{
       STATE.inventario[c.dataset.invDesc][3] = c.value;
-      autoGrowTextarea(c);
+      if (!isMasterEditorOn()) autoGrowTextarea(c);
       queueSave();
     });
   });

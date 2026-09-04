@@ -270,6 +270,16 @@
   }
   .rich:focus{outline:none;border-color:var(--gold);}
   .rich b, .rich strong{color:var(--gold-bright);}
+  /* Editor Master: consente di ridimensionare verticalmente (drag dell'angolo in basso
+     a destra) i riquadri di testo modificabili, sullo stesso principio già usato per le
+     Note. Attivo solo quando l'Editor Master è acceso (classe su <body>), quindi mai
+     visibile o utilizzabile in modalità giocatore. */
+  body.master-editor-on .rich[contenteditable]{
+    resize:vertical;overflow:auto;min-height:60px;
+  }
+  body.master-editor-on .inv-item-desc{
+    resize:vertical;overflow:auto;min-height:44px;
+  }
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
   .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
@@ -823,9 +833,9 @@ const DEFAULT_STATE = {
     ["\u2713","Pezzo di gesso","0","Per disegnare piani malvagi su muri e pavimenti.",""],
     ["\u2713","Trappola per topi","1","Potenzialmente utile, anche per uno scherzo.",""],
     ["\u2713","Borraccia bucata","1","Mantiene l'acqua per circa 10 minuti.",""],
-    ["\u2713","Pezzo di specchio rotto","1","Buono per guardarsi... o ingannare qualcuno.",""],
+    ["\u2713","Pezzo di specchio rotto","1","Buono per guardarsi... o per ingannare qualcuno.",""],
     ["\u2713","Pipa senza tabacco","1","Solo per darsi un'aria importante.",""],
-    ["\u2713","Monete evidentemente false","1","Lavoro scadente, ma qualche idiota ci casca.",""],
+    ["\u2713","Monete evidentemente false","1","Lavoro scadente, ma qualche idiota ci cascher\u00e0.",""],
     ["\u2713","Scarafaggio in un barattolo","0","Si chiama \u201cMister Fizz\u201d, il tuo unico amico (per ora).",""],
     ["\u2713","Stivale senza suola","0","Il perch\u00e9 non \u00e8 chiaro.",""],
     ["\u2713","Piuma gigante","1","Da un uccello enorme? O...",""],
@@ -835,8 +845,8 @@ const DEFAULT_STATE = {
     ["\u2713","Occhio di vetro","1","Perfetto per spaventare qualcuno.",""],
     ["\u2713","Sasso con un buco naturale","1","\u201cMagico, sicuramente!\u201d",""],
     ["\u2713","Mano scheletrica","1","Ottima per fare scherzi o agitare minacciosamente.",""],
-    ["\u2713","Pezzo di vetro colorato","0","\u201cGuarda, un rubino!\u201d (non lo \u00e8).",""],
-    ["\u2713","Candela masticata","0","Perch\u00e9 qualcuno l'ha morsa resta un mistero.",""],
+    ["\u2713","Pezzo di vetro colorato","0","\u201cGuarda, un rubino!\u201d (Non \u00e8 un rubino).",""],
+    ["\u2713","Candela masticata","0","Perch\u00e9 qualcuno l'ha morsa rimane un mistero.",""],
     ["\u2713","Cucchiaio piegato","0","Forse un tempo era magico, ora \u00e8 solo un cucchiaio.",""],
     ["\u2713","Dente di drago... o di cane?","1","\u201cMagico, lo giuro!\u201d",""],
     ["\u2713","Anello con gemma crepata","1","Forse era un anello del potere, ora \u00e8 solo rotto.",""],
@@ -856,6 +866,8 @@ const DEFAULT_STATE = {
     {nome:"Campione del Caos", tag:"Passiva", desc:"Il PG potrà usufruire di diversi slot, suddivisi in livelli esclusivamente per abilità ATTIVE, il restante, verrà contrassegnato come TRUCCHETTO. I trucchetti avranno CD proprie ed avranno degli utilizzi limitati nell'arco della giornata (riposo lungo). I tiri delle abilità verranno effettuati esclusivamente su CAOS con CD 16 che scaleranno su CARISMA. Il PG avrà un indicatore di Caos costituito da 5 livelli. Ogni qualvolta il PG sarà in presenza di Caos e riuscirà ad “assorbirlo” (effettuando un tiro sulla caratteristica CAOS) guadagnerà un lvl (esclusivamente uno per volta a prescindere dall'atto del caos scatenato, che sia determinato da lui o meno ammenochè non venga specificato il contrario). Il personaggio per poter sfruttare il suo potere necessiterà di almeno un livello di caos, quando raggiungerà il livello massimo (5) le sue abilità guadagneranno potenziamenti. Il Caos potrà essere consumato per abilità esclusive di grossa entità. Il PG può conservare il Caos fino a due riposi lunghi successivamente sentirà la necessità di sprigionarlo."},
     {nome:"Risveglio Caotico", tag:"Abilit\u00e0 (Genera Caos non cumulabile)", desc:"Il giocatore tocca un animale o un oggetto non magico di media/piccola taglia e gli dona coscienza e la possibilità di parlare. (Genera Caos non cumulabile)<br><br>• L'oggetto inizia a parlare con una voce e una personalità casuale, può muoversi di qualche centimetro, ma non può combattere, ha opinioni proprie e può rivelare segreti dimenticati o dire cose senza senso, l'oggetto sceglie se aiutare il PG o insultarlo a caso, ma non può essere forzato a tacere. Durata 4 ore / 4 turni.<br><br>• L'animale ha la propria coscienza ma non è detto che la voce corrisponda al corpo, ex la voce di una bambina in un gorilla, esso potrà decidere di allontanarsi dal giocatore o aiutarlo a seconda di quanto gli starà sui coglioni. Durata 4 ore / 4 turni. (Caos 1-4)<br><br>• Il giocatore emanerà un'aura Caotica di 5 caselle, ove all'interno 4 entità di piccola media grandezza oppure 1 di Grande, tra animali e oggetti, prenderanno vita. Una volta animati, questi seguiranno gli ordini del PG, esso avrà la facoltà dove possibile, di determinare carattere, voce, e caratteristiche subdole del personaggio animato. Durata 8 ore/ 8 Turni. (Caos 5)"}
   ],
+
+  abilita: [],
 
   divergenzaIntro: "Il Pg grazie al suo Jin ha la possibilità di plasmare il Caos che possiede in corpo accrescendo le sue caratteristiche fisiche o mentali. Le caratteristiche possono essere modificate una per volta, se si vorrà modificare il potenziamento andrà sprecato un ulteriore slot. Durante i potenziamenti non tutte le abilità saranno disponibili all'uso causa grande impiego di Caos. <b>(Non genera CAOS)</b><br><br><b>(DURANTE IL POTENZIAMENTO FISICO NON È POSSIBILE LANCIARE TUTTE LE ABILITÀ)</b>",
   ambiti: [
@@ -941,6 +953,7 @@ const BLANK_STATE = {
   capacitaMax: 50,
 
   passive: [],
+  abilita: [],
   divergenzaIntro: "", ambiti: [], campiAttiva: [], divergenzaAttivaNote: "", divergenzaPassiva: "",
   truccetti: [],
 
@@ -1687,6 +1700,7 @@ const MASTER_EDITOR_KEY = "morgedal-master-editor";
 const MASTER_CATS = [
   { key:"passive", label:"Passiva" },
   { key:"truccetti", label:"Truccetto" },
+  { key:"abilita", label:"Abilità" },
   { key:"risorse", label:"Risorsa" },
   { key:"ambiti", label:"Ambito" },
   { key:"campiAttiva", label:"Campo" }
@@ -1707,6 +1721,7 @@ function masterToCanonical(cat, item){
   }
   if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
   if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "abilita") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Abilità", width:item.width||1 };
   if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
   return { nome:"", desc:"", width:1 };
 }
@@ -1716,6 +1731,7 @@ function masterFromCanonical(cat, c){
   }
   if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
   if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "abilita") return { nome:c.nome||"Nuova Abilità", tag:c.tag||"Abilità", desc:c.desc||"", width:c.width||1 };
   if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
   return { nome:c.nome||"", desc:c.desc||"" };
 }
@@ -1853,6 +1869,7 @@ function initMasterEditorToggle(){
     const on = isMasterEditorOn();
     btn.classList.toggle("on", on);
     btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+    document.body.classList.toggle("master-editor-on", on);
   };
   refresh();
   btn.addEventListener("click", ()=>{
@@ -1911,6 +1928,19 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const abilitaHtml = STATE.abilita.map((a,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("abilita", i) : "";
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="abilita|${i}|nome" value="${esc(a.nome)}">`
+      : `<h3>${a.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(a.nome)}"${masterBoxStyle("abilita", i)}>
+      ${toolbar}
+      <span class="tag tag-abilita">Abilità</span>
+      ${nameField}
+      <div class="rich" contenteditable="true" data-rich-arr="abilita-${i}">${a.desc}</div>
+    </div>`;
+  }).join("");
+
   const truccettiHtml = STATE.truccetti.map((t,i)=>{
     const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
     const usoField = masterOn
@@ -1945,6 +1975,7 @@ function renderPoteri(){
 
     <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
     <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
+    ${(STATE.abilita.length || masterOn) ? `<div class="card"><h2>Abilit\u00e0</h2>${abilitaHtml}${masterOn ? masterNewBoxBtn("abilita", "Abilit\u00e0") : ""}</div>` : ""}
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -2116,7 +2147,12 @@ function renderInvTable(){
   tbody.querySelectorAll('[data-inv-desc]').forEach(c=>{
     autoGrowTextarea(c);
     c.addEventListener("input",()=>{
-      STATE.inventario[c.dataset.invDesc][3] = c.value; autoGrowTextarea(c); queueSave();
+      STATE.inventario[c.dataset.invDesc][3] = c.value;
+      // In Editor Master il riquadro può essere ridimensionato manualmente (drag):
+      // l'auto-crescita viene applicata solo fuori da questa modalità, per non
+      // annullare un ridimensionamento manuale del Master ad ogni carattere digitato.
+      if (!isMasterEditorOn()) autoGrowTextarea(c);
+      queueSave();
     });
   });
   tbody.querySelectorAll('[data-inv-del]').forEach(c=>c.addEventListener("click",()=>{

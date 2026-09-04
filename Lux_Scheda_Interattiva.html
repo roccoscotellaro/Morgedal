@@ -276,6 +276,16 @@
   }
   .rich:focus{outline:none;border-color:var(--gold);}
   .rich b, .rich strong{color:var(--gold-bright);}
+  /* Editor Master: consente di ridimensionare verticalmente (drag dell'angolo in basso
+     a destra) i riquadri di testo modificabili, sullo stesso principio già usato per le
+     Note. Attivo solo quando l'Editor Master è acceso (classe su <body>), quindi mai
+     visibile o utilizzabile in modalità giocatore. */
+  body.master-editor-on .rich[contenteditable]{
+    resize:vertical;overflow:auto;min-height:60px;
+  }
+  body.master-editor-on .inv-desc{
+    resize:vertical;overflow:auto;min-height:44px;
+  }
   .subcard{background:var(--bg-panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
   .subcard h3{margin:0 0 8px;font-family:var(--serif);font-size:14.5px;color:var(--gold-bright);letter-spacing:.4px;}
   .subcard .tag{display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);background:rgba(255,255,255,0.05);border:1px solid var(--border-soft);border-radius:10px;padding:2px 9px;margin-bottom:8px;}
@@ -810,13 +820,13 @@ const DEFAULT_STATE = {
     ["\u2713","3 bombe (1d12 a bomba)","3","",""],
     ["\u2713","Piccolo pezzo di stoffa bordeaux/rossa","0","",""],
     ["\u2713","Rete Caccia Spiriti","4","La rete ha la capacità di catturare e avvolgere automaticamente sia oggetti che persone tangibili o eteree. Può essere utilizzata in trappole di medie/grandi dimensioni e si illumina quando un corpo non terreno vi passa vicino.",""],
-    ["\u2713","Noce di Vita","1","Qualsiasi frutto, pianta, seme o foglia piantato cresce in 2-3 giorni.",""],
-    ["\u2713","Pozione del Carisma (Rossa)","2","Aumenta il Carisma di +1 per 2 turni.",""],
+    ["\u2713","Noce di Vita","1","Qualsiasi frutto, pianta, seme o foglia piantato crescer\u00e0 in \u2154 gg.",""],
+    ["\u2713","Pozione del Carisma (Rossa)","2","Aumenta per 2 turni il Carisma di +1.",""],
     ["\u2713","Maschera di Ra","10","Maschera che durante la giornata accumula potenza e quando necessario viene sprigionata donando al pg estrema potenza di qualsivoglia genere amplificando esponenzialmente una delle sue abilit\u00e0 a scelta.",""],
     ["\u2713","Vaso delle Anime Pure","20","Una reliquia di entità poco conosciuta di solito si usava per imagazzinare le anime dei sudditi ormai esausti dal lavoro e che perivano per la troppa fatica o la fame ed usate per offrirele in sacrificio al re Ra accrescendo il suo potere, si narra che chiunque utilizzi questo manufatto possa assorbire l'anima di un soggetto ormai defunto per poi arrivare ad un tot di anime ed evocare un anima pura eccelsa (tecnica sconsigliata vista la mole di potenza richiesta).",""],
     ["\u2713","Lettera Portale","1","Questa lettera consente di spedire qualsiasi comunicazione a chiunque si conosca e in qualunque luogo del continente in cui si è attualmente. L'unico prerequisito fondamentale è conoscere il volto della persona a cui si desidera spedire la lettera e possedere almeno 17 di Intelligenza.",""],
     ["\u2713","Lettera Portale Superiore","1","Questa lettera consente di spedire comunicazioni in una citt\u00e0 del continente o di quello limitrofo in un tempo abbastanza celere. Non \u00e8 necessario conoscere la persona a cui inviare il messaggio bens\u00ed si deve avere contezza solo del suo volto.",""],
-    ["\u2713","Cristallo Magico Rodgard (Verde)","1","\u201cSalvavita\u201d: pronunciare 3 volte il nome di Rodgard, solo in caso di reale morte imminente o pericolo.",""]
+    ["\u2713","Cristallo Magico Rodgard (Verde)","1","\u201cSalvavita\u201d pronunciare 3 volte il nome di Rodgard, solo in casi di reale morte imminente o pericolo.",""]
   ],
   capacitaMax: 50,
 
@@ -827,6 +837,7 @@ const DEFAULT_STATE = {
     {nome:"Legami", tag:"Passiva", desc:"Legame fraterno con Dex, alias l'arcangelo pacificatore. Lingue conosciute: Umano e Celeste."}
   ],
 
+  abilita: [],
   divergenzaIntro: "Il giocatore ha la facolt\u00e0 di evocare pedine di luce sul campo di battaglia, decidendone la forma una volta sola alla prima evocazione (salvo artefatti che consentano modifiche successive). Pu\u00f2 evocare un massimo di 3 evocazioni per turno (incluse Armatura Waiku e Totem Lucenti). L'evocatore pu\u00f2 usare solo un'abilit\u00e0 speciale a turno: se le evocazioni sul campo sono di livello diverso, pu\u00f2 sceglierne solo una per scontro; se sono tutte dello stesso livello, pu\u00f2 usarle tutte ma solo una per turno.<br><br><b>Slot Incantesimi (dal Livello 6):</b> 6 slot lvl 1 \u00b7 6 slot lvl 2 (di cui 1 concesso da Ola) \u00b7 4 slot lvl 3 \u00b7 3 slot lvl 4 \u00b7 2 slot lvl 5. I tiri delle abilit\u00e0 si effettuano come tiro Evocazione con <b>CD 16</b>, che scala su Carisma.",
   ambiti: [
     ["Lvl 1 \u2014 Guardia","Max 6 pedine.<br><br>Soldato con scudo semplice o arciere:<br>1d4+1 danni \u00b7 10 PF \u00b7 15 CA \u00b7 Spostamento 6 \u00b7 Distanza arcieri 8.<br><br><b>Abilit\u00e0 Speciale \u2014 Formazione:</b> se evocate tutte insieme o avvicinate tra loro (minimo 6 pedine), si fondono in un'unica entit\u00e0 che avanza compatta e non pu\u00f2 pi\u00f9 dividersi. Subendo danni perde pedine ma non si rompe mai del tutto una volta creata.<br>Formazione: 6d6+1 (o 9d4+1 a distanza) \u00b7 70 PF \u00b7 17 CA \u00b7 Spostamento 5 \u00b7 Distanza arcieri 10."],
@@ -965,6 +976,7 @@ const BLANK_STATE = {
   capacitaMax: 50,
 
   passive: [],
+  abilita: [],
   divergenzaIntro: "", ambiti: [], campiAttiva: [], divergenzaAttivaNote: "", divergenzaPassiva: "",
   truccetti: [],
 
@@ -1674,6 +1686,7 @@ const MASTER_EDITOR_KEY = "morgedal-master-editor";
 const MASTER_CATS = [
   { key:"passive", label:"Passiva" },
   { key:"truccetti", label:"Truccetto" },
+  { key:"abilita", label:"Abilità" },
   { key:"risorse", label:"Risorsa" },
   { key:"ambiti", label:"Ambito" },
   { key:"campiAttiva", label:"Campo" }
@@ -1694,6 +1707,7 @@ function masterToCanonical(cat, item){
   }
   if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
   if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "abilita") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Abilità", width:item.width||1 };
   if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
   return { nome:"", desc:"", width:1 };
 }
@@ -1703,6 +1717,7 @@ function masterFromCanonical(cat, c){
   }
   if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
   if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "abilita") return { nome:c.nome||"Nuova Abilità", tag:c.tag||"Abilità", desc:c.desc||"", width:c.width||1 };
   if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
   return { nome:c.nome||"", desc:c.desc||"" };
 }
@@ -1840,6 +1855,7 @@ function initMasterEditorToggle(){
     const on = isMasterEditorOn();
     btn.classList.toggle("on", on);
     btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+    document.body.classList.toggle("master-editor-on", on);
   };
   refresh();
   btn.addEventListener("click", ()=>{
@@ -1905,6 +1921,19 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const abilitaHtml = STATE.abilita.map((a,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("abilita", i) : "";
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="abilita|${i}|nome" value="${esc(a.nome)}">`
+      : `<h3>${a.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(a.nome)}"${masterBoxStyle("abilita", i)}>
+      ${toolbar}
+      <span class="tag tag-abilita">Abilità</span>
+      ${nameField}
+      <div class="rich" contenteditable="true" data-rich-arr="abilita-${i}">${a.desc}</div>
+    </div>`;
+  }).join("");
+
   const truccettiHtml = STATE.truccetti.map((t,i)=>{
     const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
     const usoField = masterOn
@@ -1939,6 +1968,7 @@ function renderPoteri(){
 
     <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
     <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
+    ${(STATE.abilita.length || masterOn) ? `<div class="card"><h2>Abilità</h2>${abilitaHtml}${masterOn ? masterNewBoxBtn("abilita", "Abilità") : ""}</div>` : ""}
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -2099,7 +2129,7 @@ function renderInvTable(){
     autoGrowTextarea(c);
     c.addEventListener("input",()=>{
       STATE.inventario[c.dataset.invDesc][3] = c.value;
-      autoGrowTextarea(c);
+      if (!isMasterEditorOn()) autoGrowTextarea(c);
       queueSave();
     });
   });
