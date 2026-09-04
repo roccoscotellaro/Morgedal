@@ -20,6 +20,10 @@
     --red-glow:#c9463b;
     --blue:#4f8fd6;
     --blue-dim:#2d5a86;
+    --teal:#2fb8ac;
+    --teal-dim:#1d6b64;
+    --amber:#e08a3a;
+    --amber-dim:#8a541f;
     --identity:#9450d8;
     --text:#ece3d0;
     --text-dim:#a89880;
@@ -104,20 +108,23 @@
   .quicknav{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px;}
   .quicknav-pill{
     display:inline-flex;align-items:center;gap:5px;
-    background:rgba(148,80,216,0.12);border:1px solid var(--violet-dim);
-    border-radius:14px;padding:4px 12px;font-size:12px;color:var(--violet);
+    background:color-mix(in srgb, var(--identity) 12%, transparent);
+    border:1px solid color-mix(in srgb, var(--identity) 45%, transparent);
+    border-radius:14px;padding:4px 12px;font-size:12px;color:var(--identity);
     cursor:pointer;transition:background .15s,color .15s;
   }
-  .quicknav-pill:hover{background:rgba(148,80,216,0.25);color:var(--gold-bright);}
+  .quicknav-pill:hover{background:color-mix(in srgb, var(--identity) 25%, transparent);color:var(--gold-bright);}
   .quicknav-pill::before{content:"\2197";font-size:11px;}
   @keyframes anchorFlash{0%,100%{box-shadow:none;}30%{box-shadow:0 0 0 3px var(--gold);}}
   .anchor-flash{animation:anchorFlash 1.4s ease;}
   .editable-name{
     background:transparent;border:none;color:var(--gold-bright);font-family:var(--serif);
-    font-weight:700;font-size:clamp(38px,6vw,64px);letter-spacing:2px;text-transform:uppercase;
+    font-weight:700;font-size:64px;letter-spacing:2px;text-transform:uppercase;
     text-shadow: 0 2px 0 rgba(0,0,0,0.6), 0 0 26px rgba(148,80,216,0.35);
-    border-bottom:1px dashed transparent; padding:0; width:100%;
+    border-bottom:1px dashed transparent; padding:0; width:100%; max-width:100%;
+    white-space:nowrap; overflow:hidden;
   }
+  @media (max-width:720px){ .editable-name{ font-size:38px; } }
   .editable-name:hover, .editable-name:focus{border-bottom:1px dashed var(--gold); outline:none;}
 
   /* ---------- TABS ---------- */
@@ -268,6 +275,57 @@
   .subcard .tag.tag-passiva{color:var(--violet);background:rgba(148,80,216,0.12);border-color:var(--violet-dim);}
   .subcard .tag.tag-truccetto{color:var(--blue);background:rgba(79,143,214,0.12);border-color:var(--blue-dim);}
   .subcard .tag.tag-abilita{color:var(--red-glow);background:rgba(201,70,59,0.14);border-color:rgba(201,70,59,0.45);}
+  .subcard .tag.tag-ambito{color:var(--teal);background:rgba(47,184,172,0.14);border-color:var(--teal-dim);}
+  .subcard .tag.tag-campo{color:var(--amber);background:rgba(224,138,58,0.14);border-color:var(--amber-dim);}
+  .subcard-grouped{grid-column:1/-1;}
+  .subcard-subsection{padding-top:10px;margin-top:10px;border-top:1px dashed var(--border-soft);}
+  .subcard-subsection:first-of-type{border-top:none;margin-top:6px;padding-top:0;}
+  .subcard-subsection h4{margin:0 0 4px;font-size:13.5px;color:var(--gold-bright);font-family:var(--serif);}
+
+  /* ---------- MASTER EDITOR (visibile solo in modalità Editor Master) ---------- */
+  .master-toolbar{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    margin-bottom:8px;padding:4px 6px;border-radius:6px;
+    background:rgba(148,80,216,0.08);border:1px dashed var(--violet-dim);
+  }
+  .master-cat-select, .master-box-width{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
+    border-radius:5px;font-size:10px;padding:2px 4px;max-width:120px;
+  }
+  .master-mini-btn, .master-mini-del{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:5px;font-size:11px;padding:2px 7px;cursor:pointer;line-height:1.3;
+  }
+  .master-mini-btn:hover{border-color:var(--gold-bright);color:var(--gold-bright);}
+  .master-mini-del{color:var(--bad);}
+  .master-mini-del:hover{border-color:var(--bad);}
+  .master-add-btn{margin-top:8px;}
+  .master-name-input{
+    display:block;width:100%;background:transparent;border:none;border-bottom:1px dashed var(--border-soft);
+    color:var(--gold-bright);font-family:var(--serif);font-size:14.5px;letter-spacing:.4px;
+    margin:0 0 8px;padding:0 0 4px;
+  }
+  .master-name-input:focus{outline:none;border-color:var(--gold-bright);}
+  .master-tag-input, .master-uso-input{
+    display:inline-block;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;
+    background:var(--bg-panel-3);border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:10px;padding:2px 9px;margin-bottom:8px;width:auto;max-width:220px;
+  }
+  [data-master-field][contenteditable="true"]{border-radius:4px;}
+  [data-master-field][contenteditable="true"]:focus{outline:1px dashed var(--violet-dim);}
+  .master-editor-toggle{
+    display:none;position:fixed;bottom:14px;left:16px;z-index:60;
+    align-items:center;gap:6px;padding:8px 14px;border-radius:14px;
+    background:var(--bg-panel-2);border:1px solid var(--violet-dim);
+    color:var(--text-dim);font-size:11px;font-weight:700;letter-spacing:.2px;
+    cursor:pointer;white-space:nowrap;
+  }
+  .master-editor-toggle.show{display:flex;}
+  .master-editor-toggle:hover{border-color:var(--gold-bright);}
+  .master-editor-toggle.on{background:rgba(148,80,216,0.18);color:var(--violet);border-color:var(--violet);}
+  @media (max-width:760px){
+    .master-editor-toggle{position:static;margin:0 0 10px;}
+  }
 
   /* ---------- EVOLUZIONI FUTURE (pannelli richiudibili) ---------- */
   .evo-note{font-size:12.5px;color:var(--text-faint);margin:-6px 0 14px;line-height:1.5;}
@@ -310,26 +368,29 @@
     cursor:pointer;font-size:13px;width:24px;height:24px;line-height:1;flex-shrink:0;
   }
   .img-zoom:hover{border-color:var(--gold);color:var(--gold-bright);}
-  .img-lightbox{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .img-lightbox{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;padding:14px;}
   .img-lightbox[hidden]{display:none;}
-  .img-lightbox-backdrop{position:absolute;inset:0;background:rgba(10,8,7,0.92);backdrop-filter:blur(3px);}
+  .img-lightbox-backdrop{position:absolute;inset:0;background:rgba(10,8,7,0.95);backdrop-filter:blur(4px);}
   .img-lightbox-content{
-    position:relative;max-width:min(96vw,1400px);max-height:92vh;
-    display:flex;flex-direction:column;align-items:center;gap:12px;
+    position:relative;width:100%;height:100%;max-width:min(98vw,2200px);max-height:97vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
     transform:scale(.96);opacity:0;transition:transform .16s ease,opacity .16s ease;
   }
   .img-lightbox.show .img-lightbox-content{transform:scale(1);opacity:1;}
-  .img-lightbox-content img{display:block;max-width:100%;max-height:82vh;border-radius:12px;border:1px solid var(--border-soft);box-shadow:0 16px 60px rgba(0,0,0,0.6);}
-  .img-lightbox-caption{color:var(--gold-bright);font-size:14px;font-weight:600;text-align:center;}
+  .img-lightbox-content img{display:block;max-width:100%;max-height:90vh;width:auto;height:auto;object-fit:contain;border-radius:12px;border:1px solid var(--border-soft);box-shadow:0 16px 60px rgba(0,0,0,0.6);}
+  .img-lightbox-caption{color:var(--gold-bright);font-size:15px;font-weight:600;text-align:center;}
   .img-lightbox-caption[hidden]{display:none;}
   .img-lightbox-close{
-    position:absolute;top:-16px;right:-16px;width:38px;height:38px;border-radius:50%;
+    position:absolute;top:-16px;right:-16px;width:42px;height:42px;border-radius:50%;
     background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text);
-    font-size:22px;line-height:1;cursor:pointer;
+    font-size:24px;line-height:1;cursor:pointer;
   }
   .img-lightbox-close:hover{border-color:var(--gold);color:var(--gold-bright);}
-  @media (max-width:520px){
-    .img-lightbox-close{top:-14px;right:0;}
+  @media (max-width:720px){
+    .img-lightbox{padding:8px;}
+    .img-lightbox-content{max-width:100vw;max-height:100vh;gap:10px;}
+    .img-lightbox-content img{max-height:calc(100vh - 70px);}
+    .img-lightbox-close{top:-13px;right:2px;width:38px;height:38px;font-size:22px;}
   }
 
   /* ---------- INVENTORY ---------- */
@@ -577,6 +638,8 @@
 
 <div class="wrap" id="panels"></div>
 
+<button class="master-editor-toggle" id="master-editor-toggle" type="button" title="Attiva/disattiva la modalità di modifica strutturale (solo Master): categorie, titoli, riquadri">🛠️ Editor Master</button>
+
 <div class="savebar collapsed" id="savebar">
   <button class="savebar-toggle" id="savebar-toggle" type="button" title="Mostra il pannello Opzioni scheda">⚙ Opzioni scheda</button>
   <div class="savebar-content" id="savebar-content">
@@ -714,8 +777,8 @@ const DEFAULT_STATE = {
 
   attacchi: "<p><b>Traduttore (+3):</b> da utilizzare quando sento una lingua che non conosco, per provare a tradurla e a usarla.</p><p><b>Branchie</b></p><p><b>Corpo da Lumaca</b> (vedi Risorse)</p><p><b>Attacchi Fisici:</b> 3d6 + 2</p>",
 
-  equip: { testa:"", gambe:"X", arma1:"X", altro:"X (Busto)", art1:"Tunica del Monaco Difensore", art2:"Maschera di Anubis", art3:"Scudo Bastilante di Luce" },
-  equipImages: { testa:"", gambe:"", arma1:"", altro:"", art1:"", art2:"", art3:"" },
+  equip: { testa:"", gambe:"X", arma1:"X", arma2:"", altro:"X (Busto)", corpo:"", art1:"Tunica del Monaco Difensore", art2:"Maschera di Anubis", art3:"Scudo Bastilante di Luce" },
+  equipImages: { testa:"", gambe:"", arma1:"", arma2:"", altro:"", corpo:"", art1:"", art2:"", art3:"" },
 
   equipDettagli: "<p><b>Tunica del Monaco Difensore:</b> la tunica ha la capacità di rendere invisibile il possessore, per 30 minuti o per 2 turni (se viene colpito l'invisibilità svanisce). In più fornisce automaticamente dei bonus alla furtività +1 (se invisibile +2), alla destrezza +1 (se invisibile +2), acrobazie +2 (se invisibile +3).</p><p><b>Maschera di Anubis:</b> maschera che consente di assorbire anime dei nemici e tramutarle in energia e PF; i nemici uccisi da questa abilità saranno al comando del possessore fino alla fine dello scontro. Danno maschera variabile a turno a seconda del nemico e della potenza da assorbire. CD 17.</p><p><b>Scudo Bastilante di Luce:</b> apparentemente uno scudo normale, se impugnato da un soggetto con forza superiore a 17 lo scudo si frammenta in tre parti aprendosi e illuminandosi sulla parte superiore di colore giallo acceso. Lo scudo ha una particolare abilità di allontanamento dei nemici: infatti tutti i nemici con CA inferiore a 15 non si possono avvicinare allo scudo per volontà, tutti quelli con CA superiore dovranno effettuare un CD Destrezza 16. Lo scudo può essere usato come arma per colpire, spintonare o spazzare via un nemico con la sua abilità di allontanamento 10 caselle + danno eventuale minimo 1d10; chiunque colpisca il PG subisce 1d6 danni elettrici.</p><p><b>Guanti del Monaco Difensore</b> (inventario): +2 ai danni da corpo a corpo. I guanti hanno la capacità di attrarre a sé tutti gli oggetti di qualsiasi lega metallica, in più presentano dei piccoli aculei sui palmi che favoriscono l'arrampicata.<br><b>1 x Scontro</b> Durante il turno nemico il giocatore può effettuare un tiro di “parata dell'attacco” con un d20 opposto al tiro per colpire del suo nemico. Se il dado dovesse essere più alto del nemico allora il giocatore parerebbe il colpo senza subire danni, in caso contrario se dovesse essere inferiore subirebbe solamente la metà dei danni.<br><b>1 x Scontro</b> il giocatore può evocare una barriera protettiva di medie dimensioni dai guanti, costituita interamente in plasma, praticamente indistruttibile. Quest'ultima può essere utilizzata come azione bonus se il giocatore presenta meno di 20 PF, essa coprirà una zona massima di 3 caselle e permetterà al PG di scappare o parare qualcosa di molto forte se necessario (durata 3 turni). CD 15; <b>3P</b>.</p>",
 
@@ -734,10 +797,10 @@ const DEFAULT_STATE = {
 
   divergenzaIntro: "Il PG ha la facolt\u00e0 di trasformare il proprio fisico in base alle evenienze, maturando vantaggi tattici. Ogni trasformazione ha modificatori propri e abilit\u00e0 intrinseche specifiche, considerate <b>trucchetti</b> (non consumano slot abilit\u00e0). Ogni trasformazione dura tutto lo scontro; all'inizio dello scontro il PG pu\u00f2 tentare un tiro Trasformazione Extra per cambiare aspetto. Il costo energetico di ogni trasformazione \u00e8 di <b>5 punti energia</b>. I modificatori indicati per ciascuna trasformazione sono bonus da aggiungere alla caratteristica selezionata.",
   ambiti: [
-    ["Alterazione: Velocit\u00e0","Mod. Destrezza +4 \u00b7 Movimento 20 \u00b7 Bonus attacco +2 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 5d6+2 danni contundenti (rischio di stordire il nemico).<br><br>Il fisico muta in forma asciutta: gambe da mezzo ghepardo, braccia snelle, testa a punta rivolta indietro per aerodinamicit\u00e0, coda pi\u00f9 corta.<br><br><b>Abilit\u00e0 Specifica:</b> nel turno avversario pu\u00f2 tentare un tiro opposto per schivare l'attacco. Quantit\u00e0 3."],
-    ["Alterazione: Forza","Mod. Forza +4 \u00b7 Movimento 7 \u00b7 Bonus attacco +4 \u00b7 CA +1 \u00b7 +20 PF temporanei.<br><br>Corpo a corpo: 7d6+2 danni pesanti (rischio di azzoppare il nemico).<br><br>Il fisico diventa possente e nerboruto: gambe e braccia grosse come zampe d'elefante, petto doppio, vita stretta come un gorilla, coda lunga come un lizardiano, con corna.<br><br><b>Abilit\u00e0 Specifica:</b> una volta per riposo lungo pu\u00f2 andare in Berserk, +2d6 danni. Quantit\u00e0 1."],
-    ["Alterazione: Volo","Mod. Forza +1, Mod. Destrezza +2 \u00b7 Movimento 15 (volando) \u00b7 Bonus attacco +3 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 6d6+2 danni da sanguinamento.<br><br>Il fisico sviluppa tratti da rapace: ali, becco, coda ridimensionata, artigli, stazza ridotta.<br><br><b>Abilit\u00e0 Specifica:</b> con un movimento d'ali attacca a distanza con turbini/colpi d'aria, 3d6 a colpo, max 2 di fila \u2014 se entrambi in successione, il secondo non richiede tiro sulla CA nemica (danno automatico). Quantit\u00e0 4."],
-    ["Alterazione: Mini","Mod. Forza +2, Mod. Destrezza +3 \u00b7 Movimento 5 \u00b7 Bonus attacco +3 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 5d6+2 danni da paralisi (elettricit\u00e0).<br><br>La statura si riduce drasticamente, diventando difficile da individuare, mantenendo per\u00f2 tutti i vantaggi e le abilit\u00e0 della forma normale.<br><br><b>Abilit\u00e0 Specifica \u2014 Colpo Devastante:</b> forza sufficiente a sollevare fino a 10 volte il proprio peso, concentrata in un colpo letale: 12d6 danni. Quantit\u00e0 2, max 1 per scontro."]
+    ["Alterazione: Velocit\u00e0","Mod. Destrezza +4 \u00b7 Movimento 20 \u00b7 Bonus attacco +2 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 5d6+2 danni contundenti (rischio di stordire il nemico).<br><br>Il pg sviluppa la capacit\u00e0 di mutare la sua stazza fisica per agevolarsi negli spostamenti, ma soprattutto in combattimento, diventando pi\u00f9 abile nello spostamento e nella schivata: mutazioni riconducibili a un fisico asciutto, gambe da met\u00e0 ghepardo, braccia molto snelle, gomiti e testa a punta curva all'indietro per aerodinamicit\u00e0, coda pi\u00f9 corta.<br><br><b>Abilit\u00e0 Specifica:</b> nel turno avversario pu\u00f2 compiere un tiro opposto per tentare di schivare l'attacco. Quantit\u00e0 3."],
+    ["Alterazione: Forza","Mod. Forza +4 \u00b7 Movimento 7 \u00b7 Bonus attacco +4 \u00b7 CA +1 \u00b7 +20 PF temporanei.<br><br>Corpo a corpo: 7d6+2 danni pesanti (rischio di azzoppare il nemico).<br><br>Il pg sviluppa la capacit\u00e0 di mutare la sua stazza fisica per avvantaggiarsi negli scontri fisici e nei combattimenti dove \u00e8 richiesta pi\u00f9 potenza: mutazioni riconducibili a un fisico possente e nerboruto, non troppo imponente, gambe e braccia grosse e spesse come zampe d'elefante, petto doppio, vita stretta come un gorilla, coda lunga come un lizardiano, con corna.<br><br><b>Abilit\u00e0 Specifica:</b> una volta per riposo lungo pu\u00f2 andare in Berserk, +2d6 danni. Quantit\u00e0 1."],
+    ["Alterazione: Volo","Mod. Forza +1, Mod. Destrezza +2 \u00b7 Movimento 15 (volando) \u00b7 Bonus attacco +3 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 6d6+2 danni da sanguinamento.<br><br>Il pg sviluppa la capacit\u00e0 di mutare la sua stazza fisica per avvantaggiarsi negli scontri sviluppando caratteristiche fisiche riconducibili a rapaci e volatili: ali e becco, cos\u00ec da raggiungere un'aerodinamicit\u00e0 spiccata, coda ridimensionata, artigli, e una stazza fisica complessivamente ridotta.<br><br><b>Abilit\u00e0 Specifica:</b> con un movimento d'ali attacca a distanza con turbini/colpi d'aria, 3d6 a colpo, max 2 di fila \u2014 se entrambi in successione, il secondo non richiede tiro sulla CA nemica (danno automatico). Quantit\u00e0 4."],
+    ["Alterazione: Mini","Mod. Forza +2, Mod. Destrezza +3 \u00b7 Movimento 5 \u00b7 Bonus attacco +3 \u00b7 +10 PF temporanei.<br><br>Corpo a corpo: 5d6+2 danni da paralisi (elettricit\u00e0).<br><br>Il pg sviluppa la capacit\u00e0 di mutare la sua stazza fisica per avvantaggiarsi negli scontri, riducendo di molto la sua statura fino a diventare difficilmente reperibile per i nemici, mantenendo per\u00f2 tutti i vantaggi, le caratteristiche e le abilit\u00e0 della forma normale.<br><br><b>Abilit\u00e0 Specifica \u2014 Colpo Devastante:</b> forza sufficiente a sollevare fino a 10 volte il proprio peso, concentrata in un colpo letale: 12d6 danni. Quantit\u00e0 2, max 1 per scontro."]
   ],
   campiAttiva: [
     ["Sintesi Parziale (Lvl 8)","Richiama in modo incompleto e controllato i vantaggi delle proprie trasformazioni, senza attivarle per intero. Spendendo un solo slot, mantiene in forma base un solo elemento o vantaggio a scelta di una trasformazione gi\u00e0 posseduta \u2014 una componente fisica visibile (ali, gambe mutate, arti specializzati) oppure un beneficio interno (bonus a una caratteristica, resistenza, PF extra, mobilit\u00e0, sensi). Resta stabile finch\u00e9 non si passa a una trasformazione completa (nessun ulteriore slot richiesto per farlo). Una volta nel turno avversario pu\u00f2 tentare di modificare rapidamente il vantaggio attivo o richiamare una risposta mutagena istantanea (scudo, schivata adattiva, corazza improvvisa...) con un TS Costituzione CD 16. In caso di successo, il cambio o la risposta si attivano immediatamente, permettendo alla sintesi di adattarsi anche nel pieno della pressione nemica."],
@@ -857,8 +920,8 @@ const BLANK_STATE = {
   risorse: [],
   attacchi: "",
 
-  equip: { testa:"", gambe:"", arma1:"", altro:"", art1:"", art2:"", art3:"" },
-  equipImages: { testa:"", gambe:"", arma1:"", altro:"", art1:"", art2:"", art3:"" },
+  equip: { testa:"", gambe:"", arma1:"", arma2:"", altro:"", corpo:"", art1:"", art2:"", art3:"" },
+  equipImages: { testa:"", gambe:"", arma1:"", arma2:"", altro:"", corpo:"", art1:"", art2:"", art3:"" },
   equipDettagli: "",
 
   inventario: [],
@@ -1560,6 +1623,195 @@ function renderScheda(){
 /* ============================================================
    RENDER: POTERI & RISORSE
    ============================================================ */
+/* ============================================================
+   MASTER EDITOR
+   Modalità di modifica strutturale riservata al Master: categoria,
+   titolo/etichetta, testo, larghezza e ordine dei riquadri di
+   Passive/Truccetti/Risorse/Ambiti/Campi. Nessuna auto-correzione:
+   il testo inserito viene salvato esattamente com'è scritto.
+   Attivabile SOLO da chi ha già sbloccato la modalità Master
+   (password Master), ed è completamente invisibile/inattiva in
+   modalità giocatore.
+   ============================================================ */
+const MASTER_EDITOR_KEY = "morgedal-master-editor";
+const MASTER_CATS = [
+  { key:"passive", label:"Passiva" },
+  { key:"truccetti", label:"Truccetto" },
+  { key:"risorse", label:"Risorsa" },
+  { key:"ambiti", label:"Ambito" },
+  { key:"campiAttiva", label:"Campo" }
+];
+const MASTER_ARR_SHAPE_CATS = new Set(["ambiti","campiAttiva"]);
+
+function isMasterEditorOn(){
+  if (!isMasterUnlocked()) return false;
+  try{ return sessionStorage.getItem(MASTER_EDITOR_KEY) === "1"; }catch(e){ return false; }
+}
+function setMasterEditorOn(on){
+  try{ if (on) sessionStorage.setItem(MASTER_EDITOR_KEY, "1"); else sessionStorage.removeItem(MASTER_EDITOR_KEY); }catch(e){}
+}
+
+function masterToCanonical(cat, item){
+  if (MASTER_ARR_SHAPE_CATS.has(cat)){
+    return { nome:item[0]||"", desc:item[1]||"", group:item[2]||"", width:item[3]||1 };
+  }
+  if (cat === "passive") return { nome:item.nome||"", desc:item.desc||"", tag:item.tag||"Passiva", width:item.width||1 };
+  if (cat === "truccetti") return { nome:item.nome||"", desc:item.desc||"", uso:item.uso||"?", width:item.width||1 };
+  if (cat === "risorse") return { nome:item.nome||"", desc:item.desc||"", max:item.max||1, width:item.width||1 };
+  return { nome:"", desc:"", width:1 };
+}
+function masterFromCanonical(cat, c){
+  if (MASTER_ARR_SHAPE_CATS.has(cat)){
+    return [c.nome||"Nuovo elemento", c.desc||"", "", c.width||1];
+  }
+  if (cat === "passive") return { nome:c.nome||"Nuova Passiva", tag:c.tag||"Passiva", desc:c.desc||"", width:c.width||1 };
+  if (cat === "truccetti") return { nome:c.nome||"Nuovo Truccetto", uso:c.uso||"?", desc:c.desc||"", width:c.width||1 };
+  if (cat === "risorse") return { nome:c.nome||"Nuova Risorsa", desc:c.desc||"", max:c.max||1, used:0, width:c.width||1 };
+  return { nome:c.nome||"", desc:c.desc||"" };
+}
+
+function masterRerender(cat){
+  if (MASTER_ARR_SHAPE_CATS.has(cat)) renderDivergenza(); else renderPoteri();
+}
+function masterMoveCategory(cat, idx, newCat){
+  if (newCat === cat) return;
+  const item = STATE[cat][idx];
+  const canon = masterToCanonical(cat, item);
+  STATE[cat].splice(idx,1);
+  if (!STATE[newCat]) STATE[newCat] = [];
+  STATE[newCat].push(masterFromCanonical(newCat, canon));
+  renderPoteri(); renderDivergenza();
+  queueSave();
+}
+function masterReorder(cat, idx, dir){
+  const arr = STATE[cat];
+  const j = idx + dir;
+  if (j < 0 || j >= arr.length) return;
+  const tmp = arr[idx]; arr[idx] = arr[j]; arr[j] = tmp;
+  masterRerender(cat);
+  queueSave();
+}
+function masterDelete(cat, idx){
+  STATE[cat].splice(idx,1);
+  masterRerender(cat);
+  queueSave();
+}
+function masterCreate(cat){
+  STATE[cat].push(masterFromCanonical(cat, {nome:"Nuovo elemento", desc:""}));
+  masterRerender(cat);
+  queueSave();
+}
+function masterBoxWidth(cat, idx){
+  const item = STATE[cat][idx];
+  return (MASTER_ARR_SHAPE_CATS.has(cat) ? item[3] : item.width) || 1;
+}
+function setMasterBoxWidth(cat, idx, w){
+  const item = STATE[cat][idx];
+  if (MASTER_ARR_SHAPE_CATS.has(cat)) item[3] = w; else item.width = w;
+  masterRerender(cat);
+  queueSave();
+}
+function masterSetField(cat, idx, field, val){
+  const item = STATE[cat][idx];
+  if (MASTER_ARR_SHAPE_CATS.has(cat)){
+    if (field === "nome") item[0] = val;
+    else if (field === "desc") item[1] = val;
+    else if (field === "group") item[2] = val;
+  } else {
+    item[field] = val;
+  }
+}
+function masterBoxStyle(cat, idx){
+  const w = masterBoxWidth(cat, idx);
+  return (w && w > 1) ? ` style="grid-column:span ${w};"` : "";
+}
+function masterToolbarHtml(cat, idx, opts){
+  opts = opts || {};
+  const options = MASTER_CATS.map(c => `<option value="${c.key}"${c.key===cat?" selected":""}>${c.label}</option>`).join("");
+  const w = masterBoxWidth(cat, idx);
+  const widthCtl = opts.noWidth ? "" : `<select class="master-box-width" data-master-width="${cat}-${idx}" title="Larghezza del riquadro">
+      <option value="1"${w===1?" selected":""}>1/3</option>
+      <option value="2"${w===2?" selected":""}>2/3</option>
+      <option value="3"${w===3?" selected":""}>3/3</option>
+    </select>`;
+  return `<div class="master-toolbar">
+    <select class="master-cat-select" data-master-move="${cat}-${idx}" title="Sposta in un'altra categoria">${options}</select>
+    <button type="button" class="master-mini-btn" data-master-up="${cat}-${idx}" title="Sposta su">↑</button>
+    <button type="button" class="master-mini-btn" data-master-down="${cat}-${idx}" title="Sposta giù">↓</button>
+    ${widthCtl}
+    <button type="button" class="master-mini-del" data-master-del="${cat}-${idx}" title="Elimina questo elemento">✕</button>
+  </div>`;
+}
+function masterNewBoxBtn(cat, label){
+  return `<button type="button" class="btn master-add-btn" data-master-create="${cat}">+ Nuovo box — ${label}</button>`;
+}
+function bindMasterControls(root){
+  root = root || document;
+  if (!isMasterEditorOn()) return;
+  root.querySelectorAll('[data-master-move]').forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      const [cat, idx] = sel.dataset.masterMove.split("-");
+      masterMoveCategory(cat, Number(idx), sel.value);
+    });
+  });
+  root.querySelectorAll('[data-master-up]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [cat, idx] = btn.dataset.masterUp.split("-");
+      masterReorder(cat, Number(idx), -1);
+    });
+  });
+  root.querySelectorAll('[data-master-down]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [cat, idx] = btn.dataset.masterDown.split("-");
+      masterReorder(cat, Number(idx), 1);
+    });
+  });
+  root.querySelectorAll('[data-master-del]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [cat, idx] = btn.dataset.masterDel.split("-");
+      masterDelete(cat, Number(idx));
+    });
+  });
+  root.querySelectorAll('[data-master-width]').forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      const [cat, idx] = sel.dataset.masterWidth.split("-");
+      setMasterBoxWidth(cat, Number(idx), Number(sel.value));
+    });
+  });
+  root.querySelectorAll('[data-master-create]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{ masterCreate(btn.dataset.masterCreate); });
+  });
+  root.querySelectorAll('[data-master-field]').forEach(el=>{
+    const evt = el.tagName === "SELECT" ? "change" : "input";
+    el.addEventListener(evt, ()=>{
+      const [cat, idx, field] = el.dataset.masterField.split("|");
+      const val = el.matches("[contenteditable]") ? el.innerHTML : el.value;
+      masterSetField(cat, Number(idx), field, val);
+      queueSave();
+    });
+  });
+}
+function initMasterEditorToggle(){
+  const btn = document.getElementById("master-editor-toggle");
+  if (!btn) return;
+  if (!isMasterUnlocked()){
+    btn.classList.remove("show");
+    return;
+  }
+  btn.classList.add("show");
+  const refresh = ()=>{
+    const on = isMasterEditorOn();
+    btn.classList.toggle("on", on);
+    btn.textContent = on ? "🛠️ Editor Master: ON" : "🛠️ Editor Master";
+  };
+  refresh();
+  btn.addEventListener("click", ()=>{
+    setMasterEditorOn(!isMasterEditorOn());
+    refresh();
+    renderAll();
+  });
+}
+
 function renderPoteri(){
   const slotHtml = STATE.slots.map((s,i)=>{
     const pips = Array.from({length:s.max}).map((_,p)=>`<button class="pip ${p<s.used?'used':''}" data-slotpip="${i}-${p}"></button>`).join("");
@@ -1573,30 +1825,57 @@ function renderPoteri(){
     </div>`;
   }).join("");
 
+  const masterOn = isMasterEditorOn();
+
   const risorseHtml = STATE.risorse.map((r,i)=>{
     const pips = Array.from({length:r.max}).map((_,p)=>`<button class="pip ${p<r.used?'used':''}" data-respip="${i}-${p}"></button>`).join("");
-    return `<div class="tracker">
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="risorse|${i}|nome" value="${esc(r.nome)}">`
+      : `<div class="t-name">${r.nome}</div>`;
+    const descField = masterOn
+      ? `<div class="rich" contenteditable="true" style="font-size:12px;color:var(--text-dim);" data-master-field="risorse|${i}|desc">${r.desc}</div>`
+      : `<div class="t-desc">${r.desc}</div>`;
+    return `<div class="tracker"${masterOn?"":""}>
+      ${masterOn ? masterToolbarHtml("risorse", i, {noWidth:true}) : ""}
       <div style="min-width:220px;">
-        <div class="t-name">${r.nome}</div>
-        <div class="t-desc">${r.desc}</div>
+        ${nameField}
+        ${descField}
       </div>
       <div class="pips">${pips}</div>
     </div>`;
   }).join("");
 
-  const passiveHtml = STATE.passive.map((p,i)=>`
-    <div class="subcard" id="anchor-${slugify(p.nome)}">
-      <span class="tag ${tagColorClass(p.tag)}">${p.tag}</span>
-      <h3>${p.nome}</h3>
+  const passiveHtml = STATE.passive.map((p,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("passive", i) : "";
+    const tagField = masterOn
+      ? `<input type="text" class="master-tag-input" data-master-field="passive|${i}|tag" value="${esc(p.tag)}">`
+      : `<span class="tag ${tagColorClass(p.tag)}">${p.tag}</span>`;
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="passive|${i}|nome" value="${esc(p.nome)}">`
+      : `<h3>${p.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(p.nome)}"${masterBoxStyle("passive", i)}>
+      ${toolbar}
+      ${tagField}
+      ${nameField}
       <div class="rich" contenteditable="true" data-rich-arr="passive-${i}">${p.desc}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 
-  const truccettiHtml = STATE.truccetti.map((t,i)=>`
-    <div class="subcard" id="anchor-${slugify(t.nome)}">
-      <span class="tag ${tagColorClass('Truccetto')}">Truccetto \u2014 ${esc(t.uso)}</span>
-      <h3>${t.nome}</h3>
+  const truccettiHtml = STATE.truccetti.map((t,i)=>{
+    const toolbar = masterOn ? masterToolbarHtml("truccetti", i) : "";
+    const usoField = masterOn
+      ? `<span class="tag ${tagColorClass('Truccetto')}">Truccetto \u2014 <input type="text" class="master-uso-input" data-master-field="truccetti|${i}|uso" value="${esc(t.uso)}"></span>`
+      : `<span class="tag ${tagColorClass('Truccetto')}">Truccetto \u2014 ${esc(t.uso)}</span>`;
+    const nameField = masterOn
+      ? `<input type="text" class="master-name-input" data-master-field="truccetti|${i}|nome" value="${esc(t.nome)}">`
+      : `<h3>${t.nome}</h3>`;
+    return `<div class="subcard" id="anchor-${slugify(t.nome)}"${masterBoxStyle("truccetti", i)}>
+      ${toolbar}
+      ${usoField}
+      ${nameField}
       <div class="rich" contenteditable="true" data-rich-arr="truccetti-${i}">${t.desc}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 
   document.getElementById("panel-poteri").innerHTML = `
     <div class="card">
@@ -1608,11 +1887,14 @@ function renderPoteri(){
     <div class="card">
       <h2>Risorse & Truccetti <small>clic sui cerchi per registrare un utilizzo</small></h2>
       ${risorseHtml}
-      <div style="margin-top:12px;"><button class="btn primary" id="reset-risorse">Riposo Lungo \u2014 recupera le risorse</button></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn primary" id="reset-risorse">Riposo Lungo \u2014 recupera le risorse</button>
+        ${masterOn ? masterNewBoxBtn("risorse", "Risorsa") : ""}
+      </div>
     </div>
 
-    <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}</div>
-    <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}</div>
+    <div class="card"><h2>Capacit\u00e0 Passive</h2>${passiveHtml}${masterOn ? masterNewBoxBtn("passive", "Passiva") : ""}</div>
+    <div class="card"><h2>Truccetti \u2014 Dettagli</h2>${truccettiHtml}${masterOn ? masterNewBoxBtn("truccetti", "Truccetto") : ""}</div>
   `;
 
   document.querySelectorAll('[data-slotpip]').forEach(btn=>{
@@ -1654,14 +1936,21 @@ function renderPoteri(){
       queueSave();
     });
   });
+  bindMasterControls(document.getElementById("panel-poteri"));
 }
 
 /* ============================================================
    RENDER: EQUIP & INVENTARIO
    ============================================================ */
+/* Base Guerriero: fino a 2 armi e 2 artefatti equipaggiabili contemporaneamente.
+   Ola ha gi\u00e0 3 artefatti equipaggiati sulla scheda originale (Tunica del Monaco Difensore,
+   Maschera di Anubis, Scudo Bastilante di Luce): non ho rimosso nulla per far rientrare il limite,
+   mantengo il terzo slot come eccezione esplicita segnalata invece di cancellare equipaggiamento reale. */
+const EQUIP_ARCHETYPE = "guerriero";
 const EQUIP_SLOTS = [
-  ["testa","Testa"], ["arma1","Arma 1"], ["gambe","Gambe"], ["altro","Altro"],
-  ["art1","Artefatto 1"], ["art2","Artefatto 2"], ["art3","Artefatto 3"]
+  ["testa","Testa"], ["arma1","Arma 1"], ["arma2","Arma 2"], ["gambe","Gambe"],
+  ["corpo","Corpo"], ["altro","Altro"],
+  ["art1","Artefatto 1"], ["art2","Artefatto 2"], ["art3","Artefatto 3 (eccezione)"]
 ];
 
 function renderEquip(){
@@ -1669,6 +1958,7 @@ function renderEquip(){
   document.getElementById("panel-equip").innerHTML = `
     <div class="card">
       <h2>Equipaggiamento <small>clic sul riquadro per caricare un'immagine dell'oggetto</small></h2>
+      <div style="font-size:11.5px;color:var(--text-faint);margin:-6px 0 12px;">Base ${EQUIP_ARCHETYPE === "mago" ? "Mago" : "Guerriero"}: ${EQUIP_ARCHETYPE === "mago" ? "max 1 arma, max 3 artefatti" : "max 2 armi, max 2 artefatti"}</div>
       <div class="grid grid-3" id="equip-slots-grid"></div>
       <div style="margin-top:14px;" class="rich" contenteditable="true" data-rich="equipDettagli">${STATE.equipDettagli}</div>
     </div>
@@ -1805,9 +2095,57 @@ function refreshInvTotal(){
 /* ============================================================
    RENDER: DIVERGENZA
    ============================================================ */
+/* Raggruppa voci di ambiti/campiAttiva che condividono un terzo elemento (chiave di gruppo)
+   in un unico box "subcard", cos\u00ec da non frammentare blocchi concettuali unici della fonte
+   originale (es. "Super Abilit\u00e0" di Katan, "Emocrachia"/"Purgatorio di Rasta" di Ervork).
+   Le voci senza chiave di gruppo (2 elementi: [nome, descrizione]) si comportano come prima,
+   una subcard indipendente ciascuna. Pensata per essere manipolabile dal futuro Master Editor:
+   ogni sotto-voce mantiene il proprio id ancora (anchor-slug) per i link di navigazione rapida. */
+function renderGroupedSubcards(arr, tagLabel, tagClass, fieldName){
+  const masterOn = isMasterEditorOn();
+  const groups = [];
+  const byKey = {};
+  (arr||[]).forEach((entry,idx)=>{
+    const n = entry[0], d = entry[1], g = entry[2];
+    if (g){
+      if (!byKey[g]){ byKey[g] = { key:g, items:[] }; groups.push(byKey[g]); }
+      byKey[g].items.push([n,d,idx]);
+    } else {
+      groups.push({ key:null, items:[[n,d,idx]] });
+    }
+  });
+  const itemFields = (n,d,idx,headingTag)=>{
+    if (!masterOn){
+      return `<${headingTag}>${n}</${headingTag}><div style="color:var(--text-dim);font-size:13.5px;">${d}</div>`;
+    }
+    const nameField = `<input type="text" class="master-name-input" data-master-field="${fieldName}|${idx}|nome" value="${esc(n)}">`;
+    const descField = `<div class="rich" contenteditable="true" style="color:var(--text-dim);font-size:13.5px;" data-master-field="${fieldName}|${idx}|desc">${d}</div>`;
+    return nameField + descField;
+  };
+  return groups.map(grp=>{
+    if (!grp.key){
+      const [n,d,idx] = grp.items[0];
+      const toolbar = masterOn ? masterToolbarHtml(fieldName, idx) : "";
+      return `<div class="subcard" id="anchor-${slugify(n)}"${masterOn?masterBoxStyle(fieldName, idx):""}>
+        ${toolbar}
+        <span class="tag ${tagClass}">${tagLabel}</span>
+        ${itemFields(n,d,idx,"h3")}
+      </div>`;
+    }
+    const body = grp.items.map(([n,d,idx])=>{
+      const toolbar = masterOn ? masterToolbarHtml(fieldName, idx, {noWidth:true}) : "";
+      return `<div class="subcard-subsection" id="anchor-${slugify(n)}">
+        ${toolbar}
+        ${itemFields(n,d,idx,"h4")}
+      </div>`;
+    }).join("");
+    return `<div class="subcard subcard-grouped"><span class="tag ${tagClass}">${tagLabel}</span><h3>${grp.key}</h3>${body}</div>`;
+  }).join("");
+}
 function renderDivergenza(){
-  const ambiti = STATE.ambiti.map(([n,d])=>`<div class="subcard" id="anchor-${slugify(n)}"><span class="tag tag-abilita">Ambito</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
-  const campi = STATE.campiAttiva.map(([n,d])=>`<div class="subcard" id="anchor-${slugify(n)}"><span class="tag tag-abilita">Campo</span><h3>${n}</h3><div style="color:var(--text-dim);font-size:13.5px;">${d}</div></div>`).join("");
+  const masterOn = isMasterEditorOn();
+  const ambiti = renderGroupedSubcards(STATE.ambiti, "Ambito", "tag-ambito", "ambiti");
+  const campi = renderGroupedSubcards(STATE.campiAttiva, "Campo", "tag-campo", "campiAttiva");
 
   document.getElementById("panel-divergenza").innerHTML = `
     <div class="card" id="anchor-divergenza-top">
@@ -1815,12 +2153,14 @@ function renderDivergenza(){
       <div class="rich" contenteditable="true" data-rich="divergenzaIntro">${STATE.divergenzaIntro}</div>
       <div class="divider-label">Forme Principali</div>
       <div class="grid grid-3">${ambiti}</div>
+      ${masterOn ? masterNewBoxBtn("ambiti", "Ambito") : ""}
     </div>
 
     <div class="card">
       <h2>Corredi Genetici</h2>
       <div class="rich" contenteditable="true" data-rich="divergenzaAttivaNote" style="margin-bottom:12px;">${STATE.divergenzaAttivaNote}</div>
       <div class="grid grid-3">${campi}</div>
+      ${masterOn ? masterNewBoxBtn("campiAttiva", "Campo") : ""}
     </div>
 
     <div class="card">
@@ -1829,6 +2169,7 @@ function renderDivergenza(){
     </div>
   `;
   bindRich();
+  bindMasterControls(document.getElementById("panel-divergenza"));
 }
 
 /* ============================================================
@@ -2038,7 +2379,33 @@ function renderAll(){
   syncHeroChips();
   const nameInput = document.querySelector('.editable-name');
   if (nameInput) nameInput.value = STATE.nome;
+  fitNameToWidth(nameInput);
   applyHeroBg();
+}
+
+/* Riduce automaticamente la dimensione del font del nome personaggio se troppo lungo per stare
+   su una riga, cos\u00ec da non farlo tagliare/scomparire su nomi lunghi (es. nome completo esteso). */
+function fitNameToWidth(el){
+  if (!el) return;
+  const maxPx = 64, minPx = 18;
+  el.style.letterSpacing = "2px";
+  el.style.fontSize = maxPx + "px";
+  let size = maxPx;
+  let guard = 0;
+  while (el.scrollWidth > el.clientWidth && size > minPx && guard < 60){
+    size -= 1;
+    el.style.fontSize = size + "px";
+    guard++;
+  }
+  // Se anche alla dimensione minima il testo non entra, riduce progressivamente la spaziatura
+  // tra le lettere prima di lasciare che l'ultimo carattere venga tagliato.
+  let spacing = 2;
+  guard = 0;
+  while (el.scrollWidth > el.clientWidth && spacing > -0.5 && guard < 30){
+    spacing -= 0.1;
+    el.style.letterSpacing = spacing.toFixed(1) + "px";
+    guard++;
+  }
 }
 
 function initNewSheetButton(){
@@ -2185,7 +2552,7 @@ function bindSimpleInputs(){
     inp.oninput = ()=>{
       STATE[inp.dataset.key] = inp.value;
       syncHeroChips();
-      if (inp.dataset.key === "nome") document.title = "Scheda \u2014 " + (STATE.nome || "Personaggio");
+      if (inp.dataset.key === "nome"){ document.title = "Scheda \u2014 " + (STATE.nome || "Personaggio"); fitNameToWidth(inp); }
       queueSave();
     };
   });
@@ -2305,8 +2672,13 @@ async function init(){
   initAutoFlush();
   initSavebarToggle();
   initImageLightbox();
+  initMasterEditorToggle();
 }
 
+window.addEventListener("resize", ()=>{
+  clearTimeout(window.__nameFitTimer);
+  window.__nameFitTimer = setTimeout(()=>fitNameToWidth(document.querySelector('.editable-name')), 120);
+});
 document.addEventListener("DOMContentLoaded", initLock);
 })();
 

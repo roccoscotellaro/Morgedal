@@ -60,7 +60,7 @@
   .card .colorbar{position:absolute;top:0;left:0;bottom:0;width:5px;}
   .card::before{
     content:"";position:absolute;top:0;left:0;right:0;height:3px;
-    background:linear-gradient(90deg, var(--violet), var(--gold));
+    background:var(--card-accent, linear-gradient(90deg, var(--violet), var(--gold)));
     opacity:0;transition:opacity .15s;
   }
   .card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 10px 24px rgba(0,0,0,0.35);}
@@ -153,7 +153,7 @@ const CHARACTERS = [
   { name: "Aggron", subtitle: "Guerriero Stregone — Ogre Bicefalo", tag: "Livello 8", file: "Aggron_Scheda_Interattiva.html", color: "#6b8f4e", principale: false },
   { name: "Lux", subtitle: "Evocatore Celeste — Arcangelo Pacificatore", tag: "Livello 8", file: "Lux_Scheda_Interattiva.html", color: "#ffffff", principale: true },
   { name: "Ola", subtitle: "Ibrido Distruttore — Corredo Genetico", tag: "Livello 8", file: "Ola_Scheda_Interattiva.html", color: "#9450d8", principale: true },
-  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 7", file: "Ervork_Scheda_Interattiva.html", color: "#d43b3b", principale: true },
+  { name: "Ervork", subtitle: "Guerriero Demoniaco — Ervork / Rust", tag: "Livello 8", file: "Ervork_Scheda_Interattiva.html", color: "#d43b3b", principale: true },
   { name: "Gorg", subtitle: "Campione del Caos — Goblin posseduto da Sakar", tag: "", file: "Gorg_Scheda_Interattiva.html", color: "#4fae54", color2: "#d6409f", principale: false },
   { name: "Katan", subtitle: "Guerriero Telecinetico — la mente come arma", tag: "Livello 8", file: "Katan_Scheda_Interattiva.html", color: "#2e9bff", principale: true }
 ];
@@ -165,8 +165,11 @@ function cardHtml(c){
   const barStyle = c.color2
     ? `background:linear-gradient(180deg, ${c.color}, ${c.color2})`
     : (c.color ? `background:${c.color}` : "");
+  const accentStyle = c.color
+    ? `--card-accent:${c.color2 ? `linear-gradient(90deg, ${c.color}, ${c.color2})` : c.color};`
+    : "";
   return `
-  <a class="card" href="${encodeURI(c.file)}">
+  <a class="card" href="${encodeURI(c.file)}" style="${accentStyle}">
     ${(c.color || c.color2) ? `<span class="colorbar" style="${barStyle}"></span>` : ""}
     <div class="name">${c.name}</div>
     <div class="subtitle">${c.subtitle || ""}</div>
