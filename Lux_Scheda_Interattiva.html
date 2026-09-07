@@ -1092,7 +1092,11 @@ async function driveFind(){
   const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
     headers: { Authorization: "Bearer " + googleAccessToken }
   });
-  if (!res.ok) throw new Error("drive find failed");
+  if (!res.ok){
+    const body = await res.text().catch(()=> "");
+    console.error("Drive (find) errore " + res.status + ": " + body);
+    throw new Error("drive find failed: " + res.status);
+  }
   const data = await res.json();
   return (data.files && data.files[0]) ? data.files[0].id : null;
 }
@@ -1110,7 +1114,11 @@ async function driveCreate(){
     headers: { Authorization: "Bearer " + googleAccessToken, "Content-Type": `multipart/related; boundary=${boundary}` },
     body
   });
-  if (!res.ok) throw new Error("drive create failed");
+  if (!res.ok){
+    const errBody = await res.text().catch(()=> "");
+    console.error("Drive (create) errore " + res.status + ": " + errBody);
+    throw new Error("drive create failed: " + res.status);
+  }
   const data = await res.json();
   return data.id;
 }
@@ -1121,7 +1129,11 @@ async function driveUpdate(fileId){
     headers: { Authorization: "Bearer " + googleAccessToken, "Content-Type": "application/json" },
     body: JSON.stringify(STATE)
   });
-  if (!res.ok) throw new Error("drive update failed");
+  if (!res.ok){
+    const errBody = await res.text().catch(()=> "");
+    console.error("Drive (update) errore " + res.status + ": " + errBody);
+    throw new Error("drive update failed: " + res.status);
+  }
 }
 
 async function driveSave(){
@@ -1139,6 +1151,7 @@ async function driveSave(){
     updateGoogleStatus();
     return true;
   }catch(e){
+    console.error("Salvataggio su Drive non riuscito:", e);
     return false;
   }
 }
@@ -1149,7 +1162,11 @@ async function driveLoad(){
     const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
       headers: { Authorization: "Bearer " + googleAccessToken }
     });
-    if (!res.ok) throw new Error("drive load failed");
+    if (!res.ok){
+      const errBody = await res.text().catch(()=> "");
+      console.error("Drive (load) errore " + res.status + ": " + errBody);
+      throw new Error("drive load failed: " + res.status);
+    }
     const parsed = await res.json();
     STATE = deepMerge(BLANK_STATE, parsed);
     renderAll();
@@ -1157,7 +1174,8 @@ async function driveLoad(){
     setStatus("Caricato da Google Drive \u2713");
     return true;
   }catch(e){
-    window.alert("Non sono riuscito a caricare il file da Drive.");
+    console.error("Caricamento da Drive non riuscito:", e);
+    window.alert("Non sono riuscito a caricare il file da Drive. Apri la console (F12) per il dettaglio dell'errore.");
     return false;
   }
 }
@@ -1227,9 +1245,12 @@ async function performSave(){
     if (ok) wroteSomething = true;
   }
 
+  let driveOk = false;
+  let driveAttempted = false;
   if (googleAccessToken){
-    const ok = await driveSave();
-    if (ok) wroteSomething = true;
+    driveAttempted = true;
+    driveOk = await driveSave();
+    if (driveOk) wroteSomething = true;
   }
 
   const t = new Date();
@@ -1237,11 +1258,14 @@ async function performSave(){
   if (wroteSomething){
     lastSaveOk = true;
     clearStorageWarning();
-    const extras = [localFileHandle ? "file locale" : null, googleAccessToken ? "Drive" : null].filter(Boolean).join(" + ");
+    const extras = [localFileHandle ? "file locale" : null, driveOk ? "Drive" : null].filter(Boolean).join(" + ");
     setStatus("Salvato \u2713 " + stamp + (extras ? " (" + extras + ")" : ""));
   } else if (cloudFailed){
     lastSaveOk = false;
     setStatus("Errore di salvataggio \u2014 usa \u2018Esporta backup\u2019");
+  } else if (driveAttempted && !driveOk){
+    lastSaveOk = false;
+    setStatus("Errore di salvataggio su Drive \u2014 controlla la console (F12) o usa \u2018Esporta backup\u2019");
   } else {
     setStatus("Non salvato automaticamente \u2014 collega un file locale, Google Drive, o esporta il backup");
   }
