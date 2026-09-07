@@ -1008,7 +1008,7 @@ let localFileHandle = null;
    e la scheda continua a funzionare con gli altri salvataggi.
    ============================================================ */
 const GOOGLE_CLIENT_ID = "212425310626-6a8rv1b2varcjq065pnkbbe83kn9meso.apps.googleusercontent.com";
-const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
 
 let googleTokenClient = null;
 let googleAccessToken = null;
@@ -1055,9 +1055,13 @@ function signInGoogle(prompt){
 
 async function onGoogleSignedIn(){
   try{
-    const info = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: { Authorization: "Bearer " + googleAccessToken }
-    }).then(r=>r.json());
+    });
+    // La email è solo informativa (etichetta "collegato a Drive"): se la richiesta
+    // fallisce (permessi insufficienti, rete, ecc.) non deve interrompere il collegamento
+    // a Drive, che è l'unica parte davvero necessaria al salvataggio.
+    const info = res.ok ? await res.json() : null;
     googleUserEmail = (info && info.email) || "";
   }catch(e){ googleUserEmail = ""; }
 
