@@ -2537,6 +2537,7 @@ function initLocalFileButtons(){
 function initGoogleButton(){
   const btn = document.getElementById("btn-google");
   const loadBtn = document.getElementById("btn-google-load");
+  const statusEl = document.getElementById("google-status");
   if (!btn) return;
   if (!googleConfigured()){
     btn.title = "Non ancora configurato su questa pagina";
@@ -2545,6 +2546,21 @@ function initGoogleButton(){
     return;
   }
   initGoogleAuth();
+
+  // Il collegamento a Google non resta attivo da una apertura di pagina all'altra
+  // (per sicurezza, va rifatto ogni volta). Se questo browser ha già un salvataggio
+  // Drive per questo personaggio, lo segnaliamo qui: altrimenti sembra che le
+  // modifiche siano andate perse, quando in realtà vanno solo recuperate premendo
+  // di nuovo "Accedi con Google".
+  if (!googleAccessToken && statusEl){
+    try{
+      if (localStorage.getItem(driveStorageKey())){
+        statusEl.textContent = "\u2601\ufe0f Salvataggio Drive trovato per questo personaggio \u2014 premi \u201cAccedi con Google\u201d per recuperarlo";
+        statusEl.style.color = "var(--gold-bright)";
+      }
+    }catch(e){}
+  }
+
   btn.addEventListener("click", ()=> signInGoogle(googleAccessToken ? "" : "consent"));
   if (loadBtn) loadBtn.addEventListener("click", ()=>{
     if (!googleAccessToken){ window.alert("Accedi prima con Google."); return; }
