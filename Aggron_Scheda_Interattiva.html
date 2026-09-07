@@ -1076,7 +1076,19 @@ async function driveSave(){
   if (!googleAccessToken) return false;
   try{
     if (!driveFileId){
-      driveFileId = await driveFind();
+      // La ricerca per nome (files.list) richiede al token un permesso più ampio di
+      // quello concesso (drive.file): su alcuni progetti Google Cloud questa chiamata
+      // viene rifiutata con 403 "insufficient authentication scopes". Non deve bloccare
+      // il salvataggio: se la ricerca fallisce, si procede comunque a creare il file
+      // (che con lo scope drive.file funziona sempre), sacrificando solo — nel raro caso
+      // in cui esistesse già un file con lo stesso nome creato da un altro browser/dispositivo
+      // di cui questo browser non conosce l'id — la possibilità di ritrovarlo automaticamente.
+      try{
+        driveFileId = await driveFind();
+      }catch(findErr){
+        console.error("Ricerca file su Drive non riuscita (si procede comunque con la creazione):", findErr);
+        driveFileId = null;
+      }
     }
     if (!driveFileId){
       driveFileId = await driveCreate();
