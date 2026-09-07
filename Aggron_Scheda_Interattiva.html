@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AGGRON — Scheda Personaggio</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
 <style>
   :root{
     --bg:#0f0d0c;
@@ -323,6 +324,18 @@
   }
   [data-master-field][contenteditable="true"]{border-radius:4px;}
   [data-master-field][contenteditable="true"]:focus{outline:1px dashed var(--violet-dim);}
+  .home-link{
+    position:fixed;top:14px;left:16px;z-index:60;
+    display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:14px;
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);
+    color:var(--text-dim);font-size:11px;font-weight:700;letter-spacing:.2px;
+    text-decoration:none;white-space:nowrap;transition:border-color .15s, color .15s;
+  }
+  .home-link:hover{border-color:var(--gold-bright);color:var(--gold-bright);}
+  @media (max-width:760px){
+    .home-link{position:static;display:inline-flex;margin:0 0 10px;}
+  }
+
   .master-editor-toggle{
     display:none;position:fixed;bottom:14px;left:16px;z-index:60;
     align-items:center;gap:6px;padding:8px 14px;border-radius:14px;
@@ -625,6 +638,8 @@
   </div>
 </div>
 
+<a class="home-link" href="index.html" title="Torna all’elenco dei personaggi">← Home</a>
+
 <div class="hero" id="hero">
   <div class="hero-hint">Trascina per riposizionare · <span id="btn-hero-image" style="text-decoration:underline;cursor:pointer;pointer-events:auto;">cambia immagine</span></div>
   <input type="file" id="hero-image-input" accept="image/*" class="file-input-hidden">
@@ -663,7 +678,9 @@
   <div class="sep"></div>
   <button class="btn" id="btn-google" title="Accedi con Google per salvare automaticamente su Drive">Accedi con Google</button>
   <button class="btn" id="btn-google-load" title="Ricarica l'ultima versione salvata su Drive">Carica da Drive</button>
+  <button class="btn" id="btn-google-picker" title="Seleziona un file già condiviso su Google Drive (es. dal Master) invece di crearne uno nuovo">📂 File condiviso</button>
   <span id="google-status" style="color:var(--gold-bright);font-size:10.5px;"></span>
+  <span id="google-share-hint" style="color:var(--text-faint);font-size:10.5px;"></span>
   <div class="sep"></div>
   <button class="btn" id="btn-export" title="Scarica un file di backup con tutti i dati della scheda">Esporta backup</button>
   <button class="btn" id="btn-import" title="Carica la scheda di un altro personaggio da un file di backup">Importa scheda</button>
@@ -949,6 +966,37 @@ let localFileHandle = null;
    ============================================================ */
 const GOOGLE_CLIENT_ID = "212425310626-6a8rv1b2varcjq065pnkbbe83kn9meso.apps.googleusercontent.com";
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+const GOOGLE_TOKEN_STORAGE_KEY = "morgedal-google-token";
+const GOOGLE_EVER_CONNECTED_KEY = "morgedal-google-ever-connected";
+/* Google Picker: per attivare il pulsante "File condiviso" serve, oltre al Client
+   ID sopra, una API Key con la "Google Picker API" abilitata sullo stesso progetto
+   Google Cloud (Credenziali → Crea credenziali → Chiave API, poi limitala
+   all'API Picker). Finché resta vuota, il pulsante resta disattivato e tutto
+   il resto (salvataggio, caricamento) continua a funzionare come ora. */
+const GOOGLE_PICKER_API_KEY = "";
+
+// Salva il token in sessionStorage così che, navigando dalla Home a una scheda
+// (o da una scheda all'altra) nella stessa scheda del browser, l'accesso a Google
+// resti attivo senza doverlo rifare ogni volta.
+function saveGoogleTokenToSession(token, expiresInSeconds){
+  try{
+    sessionStorage.setItem(GOOGLE_TOKEN_STORAGE_KEY, JSON.stringify({
+      token: token,
+      expiresAt: Date.now() + (Number(expiresInSeconds || 0) * 1000)
+    }));
+  }catch(e){}
+}
+
+function loadGoogleTokenFromSession(){
+  try{
+    const raw = sessionStorage.getItem(GOOGLE_TOKEN_STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || !data.token || !data.expiresAt) return null;
+    if (Date.now() > data.expiresAt - 60000) return null; // margine di sicurezza di 60s
+    return data.token;
+  }catch(e){ return null; }
+}
 
 let googleTokenClient = null;
 let googleAccessToken = null;
@@ -976,12 +1024,29 @@ function initGoogleAuth(){
       callback: async (resp)=>{
         if (resp && resp.access_token){
           googleAccessToken = resp.access_token;
+          saveGoogleTokenToSession(resp.access_token, resp.expires_in);
+          try{ localStorage.setItem(GOOGLE_EVER_CONNECTED_KEY, "1"); }catch(e){}
           await onGoogleSignedIn();
         }
+      },
+      error_callback: ()=>{
+        // Il tentativo di accesso automatico e silenzioso (senza popup) non è
+        // riuscito: nessuna sessione Google attiva nel browser, o consenso non
+        // ancora dato. Non facciamo nulla: resta il pulsante "Accedi con Google".
       }
     });
   };
   tryInit();
+}
+
+function tryGoogleSilentReauth(){
+  // Prova a ottenere un token senza mostrare popup, sfruttando una sessione
+  // Google già attiva nel browser e un consenso già dato in precedenza
+  // (questo browser ha già usato Google Drive per questo personaggio almeno
+  // una volta). Se fallisce non succede nulla di visibile: resta il pulsante
+  // manuale "Accedi con Google".
+  if (!googleTokenClient || googleAccessToken) return;
+  try{ googleTokenClient.requestAccessToken({ prompt: "" }); }catch(e){}
 }
 
 function signInGoogle(prompt){
@@ -2493,11 +2558,34 @@ function initGoogleButton(){
   }
   initGoogleAuth();
 
+  // Se l'accesso con Google è già stato eseguito in questa stessa scheda del
+  // browser (es. dalla Home, o da un'altra scheda personaggio), recupera subito
+  // il token invece di richiedere di nuovo l'accesso.
+  if (!googleAccessToken){
+    const restored = loadGoogleTokenFromSession();
+    if (restored){
+      googleAccessToken = restored;
+      onGoogleSignedIn();
+    }
+  }
+
+  // Se questo browser ha già usato Google Drive per questo personaggio almeno
+  // una volta (in qualunque sessione precedente), prova un accesso automatico e
+  // silenzioso (senza popup) prima di mostrare il solo pulsante manuale: se la
+  // sessione Google è ancora attiva nel browser, l'accesso si ripristina da solo.
+  if (!googleAccessToken){
+    try{
+      if (localStorage.getItem(GOOGLE_EVER_CONNECTED_KEY) === "1"){
+        tryGoogleSilentReauth();
+      }
+    }catch(e){}
+  }
+
   // Il collegamento a Google non resta attivo da una apertura di pagina all'altra
-  // (per sicurezza, va rifatto ogni volta). Se questo browser ha già un salvataggio
-  // Drive per questo personaggio, lo segnaliamo qui: altrimenti sembra che le
-  // modifiche siano andate perse, quando in realtà vanno solo recuperate premendo
-  // di nuovo "Accedi con Google".
+  // (per sicurezza, va rifatto ogni volta, salvo il recupero automatico sopra). Se
+  // questo browser ha già un salvataggio Drive per questo personaggio, lo segnaliamo
+  // qui: altrimenti sembra che le modifiche siano andate perse, quando in realtà
+  // vanno solo recuperate premendo di nuovo "Accedi con Google".
   if (!googleAccessToken && statusEl){
     try{
       if (localStorage.getItem(driveStorageKey())){
@@ -2512,6 +2600,57 @@ function initGoogleButton(){
     if (!googleAccessToken){ window.alert("Accedi prima con Google."); return; }
     driveLoad();
   });
+
+  const pickerBtn = document.getElementById("btn-google-picker");
+  if (pickerBtn){
+    if (!GOOGLE_PICKER_API_KEY){
+      pickerBtn.style.opacity = "0.55";
+      pickerBtn.title = "Non ancora configurato su questa pagina (manca la Chiave API della Picker API)";
+    }
+    pickerBtn.addEventListener("click", ()=>{
+      if (!googleAccessToken){ window.alert("Accedi prima con Google."); return; }
+      if (!GOOGLE_PICKER_API_KEY){ window.alert("La selezione di file condivisi non è ancora configurata su questa pagina."); return; }
+      openDrivePicker();
+    });
+  }
+
+  // Suggerimento per il Master: quale file cercare su Drive per condividerlo
+  // con il giocatore (il file va condiviso dall'interfaccia di Google Drive
+  // stessa: qui mostriamo solo il nome da cercare).
+  const shareHintEl = document.getElementById("google-share-hint");
+  if (shareHintEl && typeof isMasterUnlocked === "function" && isMasterUnlocked()){
+    shareHintEl.textContent = "Master: per condividere, cerca su Drive “" + suggestedFileName() + "” e condividilo con il giocatore.";
+  }
+}
+
+function openDrivePicker(){
+  function showPicker(){
+    const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+      .setMimeTypes("application/json")
+      .setIncludeFolders(false);
+    const picker = new google.picker.PickerBuilder()
+      .setOAuthToken(googleAccessToken)
+      .setDeveloperKey(GOOGLE_PICKER_API_KEY)
+      .addView(view)
+      .setCallback(onDrivePicked)
+      .build();
+    picker.setVisible(true);
+  }
+  if (window.gapi && window.gapi.picker){ showPicker(); return; }
+  if (!window.gapi){ window.alert("La libreria di Google non è ancora pronta, riprova tra un istante."); return; }
+  gapi.load("picker", { callback: showPicker });
+}
+
+async function onDrivePicked(data){
+  if (!data || data.action !== google.picker.Action.PICKED) return;
+  const doc = data.docs && data.docs[0];
+  if (!doc || !doc.id) return;
+  driveFileId = doc.id;
+  driveFileIdKey = driveStorageKey();
+  try{ localStorage.setItem(driveFileIdKey, driveFileId); }catch(e){}
+  updateGoogleStatus();
+  setStatus("File collegato: " + (doc.name || "senza nome") + " — caricamento…");
+  await driveLoad();
 }
 
 function initPrintButton(){

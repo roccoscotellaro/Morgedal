@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Morgedal — Schede dei Personaggi</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
     --bg:#0f0d0c;
@@ -106,6 +107,16 @@
     background:none;border:none;color:var(--text-faint);text-decoration:underline;cursor:pointer;font-size:11px;padding:0;
   }
   .master-badge button:hover{color:var(--gold-bright);}
+  .google-signin{
+    display:inline-flex;align-items:center;gap:8px;margin:14px auto 0;flex-wrap:wrap;justify-content:center;
+  }
+  .google-signin button{
+    background:var(--bg-panel-2);border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:14px;padding:7px 16px;font-size:12px;font-weight:700;letter-spacing:.2px;
+    cursor:pointer;transition:border-color .15s, color .15s;
+  }
+  .google-signin button:hover{border-color:var(--gold-bright);color:var(--gold-bright);}
+  .google-signin .google-status-home{font-size:11.5px;color:var(--text-dim);}
 </style>
 </head>
 <body>
@@ -116,6 +127,10 @@
   <div class="master-badge" id="master-badge">
     🔓 Modalità Master attiva — tutte le schede sono sbloccate
     <button id="master-logout">esci</button>
+  </div>
+  <div class="google-signin" id="google-signin">
+    <button id="btn-google-home" type="button">Accedi con Google</button>
+    <span class="google-status-home" id="google-status-home"></span>
   </div>
 </div>
  
@@ -202,6 +217,96 @@ document.getElementById("master-logout").addEventListener("click", ()=>{
   refreshMasterBadge();
 });
 refreshMasterBadge();
+
+/* ============================================================
+   ACCESSO GOOGLE CONDIVISO
+   Accedendo qui, il token viene salvato in sessionStorage: aprendo
+   poi una scheda personaggio nella STESSA scheda del browser (stesso
+   tab), l'accesso a Google risulta già attivo e non va rifatto.
+   Se il Client ID non è configurato, il pulsante resta inattivo.
+   ============================================================ */
+const GOOGLE_CLIENT_ID = "212425310626-6a8rv1b2varcjq065pnkbbe83kn9meso.apps.googleusercontent.com";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+const GOOGLE_TOKEN_STORAGE_KEY = "morgedal-google-token";
+const GOOGLE_EVER_CONNECTED_KEY = "morgedal-google-ever-connected";
+
+function saveGoogleTokenToSession(token, expiresInSeconds){
+  try{
+    sessionStorage.setItem(GOOGLE_TOKEN_STORAGE_KEY, JSON.stringify({
+      token: token,
+      expiresAt: Date.now() + (Number(expiresInSeconds || 0) * 1000)
+    }));
+  }catch(e){}
+}
+
+function loadGoogleTokenFromSession(){
+  try{
+    const raw = sessionStorage.getItem(GOOGLE_TOKEN_STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data || !data.token || !data.expiresAt) return null;
+    if (Date.now() > data.expiresAt - 60000) return null; // margine di sicurezza di 60s
+    return data.token;
+  }catch(e){ return null; }
+}
+
+function initGoogleHomeButton(){
+  const btn = document.getElementById("btn-google-home");
+  const statusEl = document.getElementById("google-status-home");
+  if (!btn || !statusEl) return;
+  if (!GOOGLE_CLIENT_ID){
+    btn.style.display = "none";
+    return;
+  }
+
+  function refreshStatus(){
+    const tok = loadGoogleTokenFromSession();
+    statusEl.textContent = tok ? "🟢 Connesso a Google — apri una scheda per continuare" : "";
+    btn.textContent = tok ? "Cambia account Google" : "Accedi con Google";
+  }
+
+  let tokenClient = null;
+  const tryInit = ()=>{
+    if (!window.google || !window.google.accounts || !window.google.accounts.oauth2){
+      setTimeout(tryInit, 300);
+      return;
+    }
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: (resp)=>{
+        if (resp && resp.access_token){
+          saveGoogleTokenToSession(resp.access_token, resp.expires_in);
+          try{ localStorage.setItem(GOOGLE_EVER_CONNECTED_KEY, "1"); }catch(e){}
+          refreshStatus();
+        }
+      },
+      error_callback: ()=>{
+        // Tentativo di accesso automatico e silenzioso non riuscito (nessuna
+        // sessione Google attiva, o consenso non ancora dato): resta il
+        // pulsante manuale "Accedi con Google".
+      }
+    });
+    // Se questo browser ha già usato Google Drive almeno una volta (qui o su
+    // una scheda personaggio), prova subito un accesso silenzioso, senza popup.
+    if (!loadGoogleTokenFromSession()){
+      try{
+        if (localStorage.getItem(GOOGLE_EVER_CONNECTED_KEY) === "1"){
+          tokenClient.requestAccessToken({ prompt: "" });
+        }
+      }catch(e){}
+    }
+  };
+  tryInit();
+
+  btn.addEventListener("click", ()=>{
+    if (!tokenClient){ window.alert("Google non è ancora pronto, riprova tra un istante."); return; }
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  });
+
+  refreshStatus();
+}
+initGoogleHomeButton();
 </script>
  
 </body>
