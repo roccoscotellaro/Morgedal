@@ -2745,12 +2745,25 @@ async function onDrivePicked(data){
   if (!data || data.action !== google.picker.Action.PICKED) return;
   const doc = data.docs && data.docs[0];
   if (!doc || !doc.id) return;
+
+  // Non colleghiamo subito la scheda al file scelto: prima verifichiamo che
+  // si riesca davvero a leggerlo con questo account (es. non più condiviso,
+  // spostato nel cestino, o scelto con l'account sbagliato). Se il caricamento
+  // fallisce, torniamo al collegamento precedente invece di restare bloccati
+  // su un id che farebbe fallire anche tutti i salvataggi automatici successivi.
+  const previousFileId = driveFileId;
   driveFileId = doc.id;
   driveFileIdKey = driveStorageKey();
-  try{ localStorage.setItem(driveFileIdKey, driveFileId); }catch(e){}
-  updateGoogleStatus();
   setStatus("File collegato: " + (doc.name || "senza nome") + " — caricamento…");
-  await driveLoad();
+
+  const ok = await driveLoad();
+  if (ok){
+    try{ localStorage.setItem(driveFileIdKey, driveFileId); }catch(e){}
+    updateGoogleStatus();
+  } else {
+    driveFileId = previousFileId;
+    setStatus("Collegamento al file condiviso non riuscito — controlla che sia stato condiviso con questo account Google, poi riprova.");
+  }
 }
 
 function initPrintButton(){
