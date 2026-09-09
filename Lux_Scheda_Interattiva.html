@@ -1143,7 +1143,16 @@ async function onGoogleSignedIn(){
     // c'\u00e8 gi\u00e0 un file collegato per questo personaggio: propone di caricarlo
     const loadIt = window.confirm("Trovato un salvataggio su Google Drive per questo personaggio.\nVuoi caricarlo (sostituisce la scheda attuale) oppure continuare con quella aperta ora e sovrascrivere Drive?\n\nOK = carica da Drive \u00b7 Annulla = mantieni questa e sovrascrivi Drive");
     if (loadIt){
-      await driveLoad();
+      const ok = await driveLoad();
+      if (!ok && driveLastLoadStatus === 404){
+        // Il collegamento salvato punta a un file che non esiste più o non è
+        // più accessibile con questo account: lo rimuoviamo invece di lasciarlo
+        // lì a fallire anche al prossimo salvataggio automatico.
+        driveFileId = null;
+        try{ localStorage.removeItem(driveFileIdKey); }catch(e){}
+        updateGoogleStatus();
+        window.alert("Il file collegato in precedenza su Google Drive non è più accessibile (rimosso, spostato, oppure non condiviso con questo account). Il collegamento è stato rimosso: salva normalmente per crearne uno nuovo, oppure usa “File condiviso” per selezionare quello giusto.");
+      }
       flushSave();
       return;
     }
@@ -1197,7 +1206,9 @@ async function driveUpdate(fileId){
   if (!res.ok){
     const errBody = await res.text().catch(()=> "");
     console.error("Drive (update) errore " + res.status + ": " + errBody);
-    throw new Error("drive update failed: " + res.status);
+    const err = new Error("drive update failed: " + res.status);
+    err.status = res.status;
+    throw err;
   }
 }
 
@@ -1222,7 +1233,22 @@ async function driveSave(){
     if (!driveFileId){
       driveFileId = await driveCreate();
     } else {
-      await driveUpdate(driveFileId);
+      try{
+        await driveUpdate(driveFileId);
+      }catch(updateErr){
+        if (updateErr && updateErr.status === 404){
+          // Il file collegato non esiste più o non è più accessibile con questo
+          // account (cestinato, rimosso, o il collegamento salvato era comunque
+          // sbagliato): continuare a riprovare sullo stesso id non porterebbe a
+          // nulla. Rimuoviamo il collegamento rotto e ne creiamo uno nuovo, invece
+          // di fallire ad ogni salvataggio da qui in avanti.
+          console.error("Il file Drive collegato non è più accessibile: rimuovo il collegamento rotto e ne creo uno nuovo.", updateErr);
+          try{ localStorage.removeItem(driveFileIdKey || driveStorageKey()); }catch(e){}
+          driveFileId = await driveCreate();
+        } else {
+          throw updateErr;
+        }
+      }
     }
     try{ localStorage.setItem(driveFileIdKey || driveStorageKey(), driveFileId); }catch(e){}
     updateGoogleStatus();
@@ -1233,13 +1259,17 @@ async function driveSave(){
   }
 }
 
+let driveLastLoadStatus = null;
+
 async function driveLoad(){
+  driveLastLoadStatus = null;
   if (!googleAccessToken || !driveFileId) return false;
   try{
     const res = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`, {
       headers: { Authorization: "Bearer " + googleAccessToken }
     });
     if (!res.ok){
+      driveLastLoadStatus = res.status;
       const errBody = await res.text().catch(()=> "");
       console.error("Drive (load) errore " + res.status + ": " + errBody);
       throw new Error("drive load failed: " + res.status);
