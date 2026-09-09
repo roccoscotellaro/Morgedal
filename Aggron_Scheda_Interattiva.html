@@ -2661,6 +2661,12 @@ function openDrivePicker(){
     const picker = new google.picker.PickerBuilder()
       .setOAuthToken(googleAccessToken)
       .setDeveloperKey(GOOGLE_PICKER_API_KEY)
+      // Necessario per selezionare correttamente file "Condivisi con me" (non
+      // creati da questa app) sotto lo scope drive.file: senza l'App ID, Drive
+      // può negare l'accesso al file scelto anche se il selettore lo mostra
+      // (l'errore tipico è "File not found" nonostante il file esista davvero).
+      // Il Project Number è il segmento numerico prima del primo "-" nel Client ID.
+      .setAppId(GOOGLE_CLIENT_ID.split("-")[0])
       .addView(view)
       .setCallback(onDrivePicked)
       .build();
