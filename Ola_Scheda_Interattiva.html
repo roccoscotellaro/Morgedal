@@ -1102,7 +1102,29 @@ async function onGoogleSignedIn(){
 
   updateGoogleStatus();
 
+  // Chiediamo conferma (caricare da Drive? file condiviso dal Master?) una
+  // sola volta per questo personaggio in questa sessione del browser: senza
+  // questo controllo, siccome ora l'accesso a Google resta "ricordato" tra
+  // un caricamento di pagina e l'altro, la richiesta ricompariva ad ogni
+  // refresh della scheda e ogni volta che si passava a un'altra scheda.
+  // Dalla seconda volta in poi (stessa scheda, stessa sessione del browser)
+  // sincronizziamo con Drive in automatico, senza altri popup.
+  const driveAskedKey = "morgedal-drive-asked::" + driveFileIdKey;
+  let driveAlreadyAsked = false;
+  try{ driveAlreadyAsked = sessionStorage.getItem(driveAskedKey) === "1"; }catch(e){}
+
   if (driveFileId){
+    if (driveAlreadyAsked){
+      const ok = await driveLoad();
+      if (!ok && driveLastLoadStatus === 404){
+        driveFileId = null;
+        try{ localStorage.removeItem(driveFileIdKey); }catch(e){}
+        updateGoogleStatus();
+      }
+      flushSave();
+      return;
+    }
+    try{ sessionStorage.setItem(driveAskedKey, "1"); }catch(e){}
     // c'\u00e8 gi\u00e0 un file collegato per questo personaggio: propone di caricarlo
     const loadIt = window.confirm("Trovato un salvataggio su Google Drive per questo personaggio.\nVuoi caricarlo (sostituisce la scheda attuale) oppure continuare con quella aperta ora e sovrascrivere Drive?\n\nOK = carica da Drive \u00b7 Annulla = mantieni questa e sovrascrivi Drive");
     if (loadIt){
@@ -1119,7 +1141,8 @@ async function onGoogleSignedIn(){
       flushSave();
       return;
     }
-  } else if (!!GOOGLE_PICKER_API_KEY){
+  } else if (!!GOOGLE_PICKER_API_KEY && !driveAlreadyAsked){
+    try{ sessionStorage.setItem(driveAskedKey, "1"); }catch(e){}
     // Primo collegamento a Google per questo personaggio su questo dispositivo
     // (nessun file ancora collegato): prima di crearne uno nuovo, chiediamo se
     // esiste già un file condiviso dal Master, per evitare di generare per
