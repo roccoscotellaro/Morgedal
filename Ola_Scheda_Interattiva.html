@@ -1119,6 +1119,16 @@ async function onGoogleSignedIn(){
       flushSave();
       return;
     }
+  } else if (!!GOOGLE_PICKER_API_KEY){
+    // Primo collegamento a Google per questo personaggio su questo dispositivo
+    // (nessun file ancora collegato): prima di crearne uno nuovo, chiediamo se
+    // esiste già un file condiviso dal Master, per evitare di generare per
+    // sbaglio un doppione personale al posto di quello vero del gruppo.
+    const hasSharedFile = window.confirm("Hai già un file di questo personaggio condiviso dal Master su Google Drive?\n\nOK = sì, selezionalo · Annulla = no, creane uno nuovo qui");
+    if (hasSharedFile){
+      openDrivePicker();
+      return;
+    }
   }
   flushSave();
 }

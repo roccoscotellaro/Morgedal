@@ -250,41 +250,44 @@ function loadGoogleTokenFromSession(){
   }catch(e){ return null; }
 }
 
-function initGoogleHomeButton(){
-  const btn = document.getElementById("btn-google-home");
+let googleIndexTokenClient = null;
+let googlePendingSignInResolve = null;
+
+function refreshGoogleHomeStatus(){
   const statusEl = document.getElementById("google-status-home");
-  if (!btn || !statusEl) return;
+  const btn = document.getElementById("btn-google-home");
+  if (!statusEl || !btn) return;
+  const tok = loadGoogleTokenFromSession();
+  statusEl.textContent = tok ? "🟢 Connesso a Google — apri una scheda per continuare" : "";
+  btn.textContent = tok ? "Cambia account Google" : "Accedi con Google";
+}
+
+function initGoogleIndex(){
+  const btn = document.getElementById("btn-google-home");
   if (!GOOGLE_CLIENT_ID){
-    btn.style.display = "none";
+    if (btn) btn.style.display = "none";
     return;
   }
-
-  function refreshStatus(){
-    const tok = loadGoogleTokenFromSession();
-    statusEl.textContent = tok ? "🟢 Connesso a Google — apri una scheda per continuare" : "";
-    btn.textContent = tok ? "Cambia account Google" : "Accedi con Google";
-  }
-
-  let tokenClient = null;
   const tryInit = ()=>{
     if (!window.google || !window.google.accounts || !window.google.accounts.oauth2){
       setTimeout(tryInit, 300);
       return;
     }
-    tokenClient = google.accounts.oauth2.initTokenClient({
+    googleIndexTokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: DRIVE_SCOPE,
       callback: (resp)=>{
         if (resp && resp.access_token){
           saveGoogleTokenToSession(resp.access_token, resp.expires_in);
           try{ localStorage.setItem(GOOGLE_EVER_CONNECTED_KEY, "1"); }catch(e){}
-          refreshStatus();
         }
+        refreshGoogleHomeStatus();
+        if (googlePendingSignInResolve){ const r = googlePendingSignInResolve; googlePendingSignInResolve = null; r(); }
       },
       error_callback: ()=>{
-        // Tentativo di accesso automatico e silenzioso non riuscito (nessuna
-        // sessione Google attiva, o consenso non ancora dato): resta il
-        // pulsante manuale "Accedi con Google".
+        // Popup chiuso, bloccato, o accesso silenzioso non riuscito: non deve
+        // mai impedire l'apertura della scheda, Google Drive resta facoltativo.
+        if (googlePendingSignInResolve){ const r = googlePendingSignInResolve; googlePendingSignInResolve = null; r(); }
       }
     });
     // Se questo browser ha già usato Google Drive almeno una volta (qui o su
@@ -292,21 +295,59 @@ function initGoogleHomeButton(){
     if (!loadGoogleTokenFromSession()){
       try{
         if (localStorage.getItem(GOOGLE_EVER_CONNECTED_KEY) === "1"){
-          tokenClient.requestAccessToken({ prompt: "" });
+          googleIndexTokenClient.requestAccessToken({ prompt: "" });
         }
       }catch(e){}
     }
   };
   tryInit();
 
-  btn.addEventListener("click", ()=>{
-    if (!tokenClient){ window.alert("Google non è ancora pronto, riprova tra un istante."); return; }
-    tokenClient.requestAccessToken({ prompt: "consent" });
+  if (btn) btn.addEventListener("click", ()=>{
+    if (!googleIndexTokenClient){ window.alert("Google non è ancora pronto, riprova tra un istante."); return; }
+    googleIndexTokenClient.requestAccessToken({ prompt: "consent" });
   });
 
-  refreshStatus();
+  refreshGoogleHomeStatus();
 }
-initGoogleHomeButton();
+initGoogleIndex();
+
+/* ============================================================
+   ACCESSO GOOGLE AL CLICK SU UNA SCHEDA PERSONAGGIO
+   Prima di aprire la scheda, se in questa scheda del browser non
+   si è ancora collegati a Google, si tenta subito l'accesso: così,
+   se il Master ha già condiviso un file, la scheda che si apre può
+   proporlo immediatamente, senza dover premere di nuovo "Accedi con
+   Google" una volta dentro. Se l'accesso non riesce o viene annullato
+   (o Google non è configurato), la scheda si apre comunque: Google
+   Drive resta sempre facoltativo, non blocca mai l'ingresso.
+   Un click con tasto centrale, o con Ctrl/Cmd/Shift/Alt premuto (per
+   aprire in una nuova scheda), non viene intercettato: si comporta
+   come un link normale.
+   ============================================================ */
+function ensureGoogleSignInThenGo(href){
+  const proceed = ()=>{ window.location.href = href; };
+  if (!GOOGLE_CLIENT_ID || loadGoogleTokenFromSession() || !googleIndexTokenClient){
+    proceed();
+    return;
+  }
+  let settled = false;
+  const settle = ()=>{ if (!settled){ settled = true; proceed(); } };
+  googlePendingSignInResolve = settle;
+  // Rete di sicurezza: se la callback di Google non dovesse mai arrivare, non
+  // si resta bloccati sulla homepage in attesa.
+  setTimeout(settle, 15000);
+  googleIndexTokenClient.requestAccessToken({ prompt: "consent" });
+}
+
+document.addEventListener("click", (e)=>{
+  const card = e.target.closest(".card");
+  if (!card || e.defaultPrevented) return;
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const href = card.getAttribute("href");
+  if (!href) return;
+  e.preventDefault();
+  ensureGoogleSignInThenGo(href);
+});
 </script>
  
 </body>
