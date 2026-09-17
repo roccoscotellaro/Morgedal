@@ -127,6 +127,10 @@
     font-size:11.5px;color:#ffb3a0;background:rgba(201,70,59,0.1);border:1px solid rgba(201,70,59,0.3);
     border-radius:6px;padding:8px 10px;margin-top:10px;
   }
+
+  .bg-preview{
+    height:90px;border-radius:10px;border:1px solid var(--border-soft);
+  }
 </style>
 </head>
 <body>
@@ -167,6 +171,29 @@
       <button class="action" id="load-chars">Carica elenco da GitHub</button>
       <div class="status-line" id="chars-status"></div>
       <div id="char-list" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Impostazioni grafiche globali <small>sfondo della Home (Morgedal)</small></h2>
+      <p>Personalizza i colori dei due bagliori decorativi e il colore di base dello sfondo scuro della Home. L'anteprima qui sotto è dal vivo; il salvataggio scrive davvero su <code>index.html</code> su GitHub.</p>
+      <button class="secondary small" id="bg-load">Carica valori attuali da GitHub</button>
+      <div class="bg-preview" id="bg-preview" style="margin-top:12px;"></div>
+      <div class="grid3" style="margin-top:12px;">
+        <div>
+          <label>Bagliore 1</label>
+          <input type="color" id="bg-glow1" value="#9450d8">
+        </div>
+        <div>
+          <label>Bagliore 2</label>
+          <input type="color" id="bg-glow2" value="#c9463b">
+        </div>
+        <div>
+          <label>Sfondo di base</label>
+          <input type="color" id="bg-base" value="#0f0d0c">
+        </div>
+      </div>
+      <button class="action" id="bg-save">Salva sfondo su GitHub</button>
+      <div class="status-line" id="bg-status"></div>
     </div>
 
     <div class="card">
@@ -573,6 +600,85 @@ async function updateCharPassword(i){
     setStatus(`char-status-${i}`, e.message, "err");
   }
 }
+
+/* ============================================================
+   IMPOSTAZIONI GRAFICHE GLOBALI \u2014 sfondo decorativo della Home
+   Tocca solo i colori dei due bagliori radiali e il colore di base
+   dietro di essi in index.html; non serve pre-caricare l'elenco
+   personaggi per usare questa sezione. */
+function hexToRgbaStr(hex, alpha){
+  const h = (hex || "#000000").replace("#", "");
+  const r = parseInt(h.substring(0,2), 16) || 0;
+  const g = parseInt(h.substring(2,4), 16) || 0;
+  const b = parseInt(h.substring(4,6), 16) || 0;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+function rgbStrToHex(rgbaInner){
+  const parts = rgbaInner.split(",").map(s => parseInt(s.trim(), 10));
+  const toHex = n => Math.max(0, Math.min(255, n || 0)).toString(16).padStart(2, "0");
+  return "#" + toHex(parts[0]) + toHex(parts[1]) + toHex(parts[2]);
+}
+const BG_GLOW1_RE = /radial-gradient\(ellipse 1000px 560px at 15% -10%, rgba\(([^)]+)\), transparent 60%\)/;
+const BG_GLOW2_RE = /radial-gradient\(ellipse 1000px 560px at 100% 0%, rgba\(([^)]+)\), transparent 55%\)/;
+const BG_BASE_RE = /--bg:\s*(#[0-9a-fA-F]{3,8});/;
+
+function refreshBgPreview(){
+  const preview = document.getElementById("bg-preview");
+  if (!preview) return;
+  const c1 = document.getElementById("bg-glow1").value;
+  const c2 = document.getElementById("bg-glow2").value;
+  const cb = document.getElementById("bg-base").value;
+  /* alpha alzata solo nell'anteprima (riquadro piccolo), il salvataggio usa
+     sempre gli stessi 0.12 / 0.08 gi\u00e0 in produzione */
+  preview.style.background =
+    `radial-gradient(ellipse 260px 140px at 15% -10%, ${hexToRgbaStr(c1, 0.35)}, transparent 60%),` +
+    `radial-gradient(ellipse 260px 140px at 100% 0%, ${hexToRgbaStr(c2, 0.28)}, transparent 55%),` +
+    cb;
+}
+["bg-glow1", "bg-glow2", "bg-base"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", refreshBgPreview);
+});
+refreshBgPreview();
+
+document.getElementById("bg-load").addEventListener("click", async ()=>{
+  setStatus("bg-status", "Caricamento in corso\u2026", "busy");
+  try{
+    const { content } = await ghGetFile("index.html");
+    const g1 = content.match(BG_GLOW1_RE);
+    const g2 = content.match(BG_GLOW2_RE);
+    const bg = content.match(BG_BASE_RE);
+    if (!g1 || !g2 || !bg) throw new Error("Non trovo lo sfondo decorativo dentro index.html: verificalo a mano.");
+    document.getElementById("bg-glow1").value = rgbStrToHex(g1[1]);
+    document.getElementById("bg-glow2").value = rgbStrToHex(g2[1]);
+    document.getElementById("bg-base").value = bg[1];
+    refreshBgPreview();
+    setStatus("bg-status", "Valori attuali caricati \u2713", "ok");
+  }catch(e){
+    setStatus("bg-status", e.message, "err");
+  }
+});
+
+document.getElementById("bg-save").addEventListener("click", async ()=>{
+  const c1 = document.getElementById("bg-glow1").value;
+  const c2 = document.getElementById("bg-glow2").value;
+  const cb = document.getElementById("bg-base").value;
+  setStatus("bg-status", "Aggiornamento in corso\u2026", "busy");
+  try{
+    const { content, sha } = await ghGetFile("index.html");
+    if (!BG_GLOW1_RE.test(content) || !BG_GLOW2_RE.test(content) || !BG_BASE_RE.test(content)){
+      throw new Error("Non trovo lo sfondo decorativo dentro index.html: verificalo a mano.");
+    }
+    const newContent = content
+      .replace(BG_GLOW1_RE, `radial-gradient(ellipse 1000px 560px at 15% -10%, ${hexToRgbaStr(c1, 0.12)}, transparent 60%)`)
+      .replace(BG_GLOW2_RE, `radial-gradient(ellipse 1000px 560px at 100% 0%, ${hexToRgbaStr(c2, 0.08)}, transparent 55%)`)
+      .replace(BG_BASE_RE, `--bg:${cb};`);
+    await ghPutFile("index.html", newContent, sha, "Aggiorna sfondo decorativo della Home");
+    setStatus("bg-status", "Sfondo aggiornato \u2713", "ok");
+  }catch(e){
+    setStatus("bg-status", e.message, "err");
+  }
+});
 
 /* ---------- Password Master su tutti i personaggi ---------- */
 document.getElementById("master-pw-update").addEventListener("click", async ()=>{
