@@ -228,6 +228,10 @@
 const MASTER_PASSWORD_HASH = "c95488e91dbb746dde809ac9806bdcadb59f72c0dbd89f3440aa4f3e3e25688a";
 const SESSION_KEY = "morgedal-admin-unlocked";
 const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
+/* Migrazione: lo sblocco Master condiviso ora vive in sessionStorage, non più
+   in localStorage (dura una sessione/tab, non sopravvive alla chiusura del
+   browser). Rimuove anche l'eventuale vecchia chiave legacy in localStorage. */
+try{ localStorage.removeItem(MASTER_UNLOCK_KEY); }catch(e){}
 
 async function sha256Hex(text){
   const enc = new TextEncoder().encode(text);
@@ -249,7 +253,7 @@ async function attemptUnlock(){
   if (hash === MASTER_PASSWORD_HASH){
     try{
       sessionStorage.setItem(SESSION_KEY, "1");
-      localStorage.setItem(MASTER_UNLOCK_KEY, "1"); // sblocca anche tutte le altre schede
+      sessionStorage.setItem(MASTER_UNLOCK_KEY, "1"); // sblocca anche tutte le altre schede (stessa sessione/tab)
     }catch(e){}
     showPanel();
   } else {
@@ -264,7 +268,7 @@ document.getElementById("lock-input").addEventListener("keydown", (e)=>{ if(e.ke
 let unlocked = false;
 try{ unlocked = sessionStorage.getItem(SESSION_KEY) === "1"; }catch(e){}
 if (unlocked){
-  try{ localStorage.setItem(MASTER_UNLOCK_KEY, "1"); }catch(e){}
+  try{ sessionStorage.setItem(MASTER_UNLOCK_KEY, "1"); }catch(e){}
   showPanel();
 } else {
   document.getElementById("lock-input").focus();
@@ -384,7 +388,7 @@ async function ghPutFile(path, newContent, sha, message){
 let CHAR_LIST = [];
 
 document.getElementById("load-chars").addEventListener("click", async ()=>{
-  setStatus("chars-status", "Caricamento in corso\u2026", "busy");
+  setStatus("chars-status", "Caricamento in corso…", "busy");
   try{
     const { content } = await ghGetFile("index.html");
     const match = content.match(/const CHARACTERS = (\[[\s\S]*?\]);/);
@@ -472,7 +476,7 @@ async function updateCharColor(i){
   const c = CHAR_LIST[i];
   const colorInput = document.querySelector(`[data-color-idx="${i}"]`);
   const newColor = colorInput.value;
-  setStatus(`char-status-${i}`, "Aggiornamento colore\u2026", "busy");
+  setStatus(`char-status-${i}`, "Aggiornamento colore…", "busy");
   try{
     const { content, sha } = await ghGetFile("index.html");
     let entry = findCharEntry(content, c.file);
@@ -486,10 +490,10 @@ async function updateCharColor(i){
     await ghPutFile("index.html", newContent, sha, `Aggiorna colore di ${c.name}`);
     CHAR_LIST[i].color = newColor;
 
-    const synced = await syncSheetCssVar(c.file, "identity", newColor, `Sincronizza colore identit\u00e0 di ${c.name}`);
+    const synced = await syncSheetCssVar(c.file, "identity", newColor, `Sincronizza colore identità di ${c.name}`);
     setStatus(`char-status-${i}`, synced
-      ? "Colore aggiornato \u2713 (homepage e scheda sincronizzate)"
-      : "Colore aggiornato \u2713 su homepage. Non ho trovato la variabile colore nella scheda: verificala a mano.", "ok");
+      ? "Colore aggiornato ✓ (homepage e scheda sincronizzate)"
+      : "Colore aggiornato ✓ su homepage. Non ho trovato la variabile colore nella scheda: verificala a mano.", "ok");
   }catch(e){
     setStatus(`char-status-${i}`, e.message, "err");
   }
@@ -499,7 +503,7 @@ async function updateCharColor2(i){
   const c = CHAR_LIST[i];
   const colorInput = document.querySelector(`[data-color2-idx="${i}"]`);
   const newColor = colorInput.value;
-  setStatus(`char-status-${i}`, "Aggiornamento 2\u00b0 colore\u2026", "busy");
+  setStatus(`char-status-${i}`, "Aggiornamento 2° colore…", "busy");
   try{
     const { content, sha } = await ghGetFile("index.html");
     let entry = findCharEntry(content, c.file);
@@ -510,13 +514,13 @@ async function updateCharColor2(i){
       newEntry = entry.replace(/\}\s*$/, `, color2: "${newColor}" }`);
     }
     const newContent = content.replace(entry, newEntry);
-    await ghPutFile("index.html", newContent, sha, `Aggiorna 2\u00b0 colore di ${c.name}`);
+    await ghPutFile("index.html", newContent, sha, `Aggiorna 2° colore di ${c.name}`);
     CHAR_LIST[i].color2 = newColor;
 
-    const synced = await syncSheetCssVar(c.file, "identity2", newColor, `Sincronizza 2\u00b0 colore identit\u00e0 di ${c.name}`);
+    const synced = await syncSheetCssVar(c.file, "identity2", newColor, `Sincronizza 2° colore identità di ${c.name}`);
     setStatus(`char-status-${i}`, synced
-      ? "2\u00b0 colore aggiornato \u2713 (homepage e scheda sincronizzate)"
-      : "2\u00b0 colore aggiornato \u2713 su homepage. Non ho trovato la variabile nella scheda: verificala a mano.", "ok");
+      ? "2° colore aggiornato ✓ (homepage e scheda sincronizzate)"
+      : "2° colore aggiornato ✓ su homepage. Non ho trovato la variabile nella scheda: verificala a mano.", "ok");
   }catch(e){
     setStatus(`char-status-${i}`, e.message, "err");
   }
@@ -524,13 +528,13 @@ async function updateCharColor2(i){
 
 /* Sposta un personaggio tra Principali e Viaggiatori: aggiorna sia il campo "principale"
    sia l'elenco PRINCIPALI_ORDER dentro index.html, e sincronizza l'etichetta TIPO nella scheda.
-   NON aggiunge/rimuove automaticamente la scheda "Evoluzioni Future": \u00e8 una modifica strutturale
+   NON aggiunge/rimuove automaticamente la scheda "Evoluzioni Future": è una modifica strutturale
    al file (nuova voce in TABS + chiamata di rendering) che questo pannello, per sicurezza, non
-   esegue da solo \u2014 va chiesta a parte quando serve davvero. */
+   esegue da solo — va chiesta a parte quando serve davvero. */
 async function updateCharPrincipale(i){
   const c = CHAR_LIST[i];
   const willBePrincipale = !c.principale;
-  setStatus(`char-status-${i}`, "Aggiornamento in corso\u2026", "busy");
+  setStatus(`char-status-${i}`, "Aggiornamento in corso…", "busy");
   try{
     const idx = await ghGetFile("index.html");
     let content = idx.content;
@@ -568,12 +572,12 @@ async function updateCharPrincipale(i){
         await ghPutFile(c.file, newSheetContent, sheet.sha, `Sincronizza TIPO di ${c.name}`);
         tipoSynced = true;
       }
-    }catch(e){ /* best-effort, non blocca lo spostamento gi\u00e0 riuscito */ }
+    }catch(e){ /* best-effort, non blocca lo spostamento già riuscito */ }
 
     renderCharList();
     const tipoNote = tipoSynced ? "" : " (etichetta TIPO nella scheda non trovata: verificala a mano)";
     setStatus(`char-status-${i}`,
-      `Spostato tra i ${willBePrincipale ? "Principali" : "Viaggiatori"} \u2713${tipoNote}. Se deve anche guadagnare/perdere la scheda "Evoluzioni Future", chiedilo a parte: il pannello non la tocca in automatico.`,
+      `Spostato tra i ${willBePrincipale ? "Principali" : "Viaggiatori"} ✓${tipoNote}. Se deve anche guadagnare/perdere la scheda "Evoluzioni Future", chiedilo a parte: il pannello non la tocca in automatico.`,
       "ok");
   }catch(e){
     setStatus(`char-status-${i}`, e.message, "err");
@@ -585,7 +589,7 @@ async function updateCharPassword(i){
   const pwInput = document.querySelector(`[data-pw-input="${i}"]`);
   const newPw = pwInput.value.trim();
   if (!newPw){ setStatus(`char-status-${i}`, "Scrivi prima una password.", "err"); return; }
-  setStatus(`char-status-${i}`, "Aggiornamento password\u2026", "busy");
+  setStatus(`char-status-${i}`, "Aggiornamento password…", "busy");
   try{
     const hash = await sha256Hex(newPw);
     const { content, sha } = await ghGetFile(c.file);
@@ -595,14 +599,14 @@ async function updateCharPassword(i){
     const newContent = content.replace(/const CHAR_PASSWORD_HASH = "[^"]*";/, `const CHAR_PASSWORD_HASH = "${hash}";`);
     await ghPutFile(c.file, newContent, sha, `Aggiorna password di ${c.name}`);
     pwInput.value = "";
-    setStatus(`char-status-${i}`, "Password aggiornata \u2713", "ok");
+    setStatus(`char-status-${i}`, "Password aggiornata ✓", "ok");
   }catch(e){
     setStatus(`char-status-${i}`, e.message, "err");
   }
 }
 
 /* ============================================================
-   IMPOSTAZIONI GRAFICHE GLOBALI \u2014 sfondo decorativo della Home
+   IMPOSTAZIONI GRAFICHE GLOBALI — sfondo decorativo della Home
    Tocca solo i colori dei due bagliori radiali e il colore di base
    dietro di essi in index.html; non serve pre-caricare l'elenco
    personaggi per usare questa sezione. */
@@ -629,7 +633,7 @@ function refreshBgPreview(){
   const c2 = document.getElementById("bg-glow2").value;
   const cb = document.getElementById("bg-base").value;
   /* alpha alzata solo nell'anteprima (riquadro piccolo), il salvataggio usa
-     sempre gli stessi 0.12 / 0.08 gi\u00e0 in produzione */
+     sempre gli stessi 0.12 / 0.08 già in produzione */
   preview.style.background =
     `radial-gradient(ellipse 260px 140px at 15% -10%, ${hexToRgbaStr(c1, 0.35)}, transparent 60%),` +
     `radial-gradient(ellipse 260px 140px at 100% 0%, ${hexToRgbaStr(c2, 0.28)}, transparent 55%),` +
@@ -642,7 +646,7 @@ function refreshBgPreview(){
 refreshBgPreview();
 
 document.getElementById("bg-load").addEventListener("click", async ()=>{
-  setStatus("bg-status", "Caricamento in corso\u2026", "busy");
+  setStatus("bg-status", "Caricamento in corso…", "busy");
   try{
     const { content } = await ghGetFile("index.html");
     const g1 = content.match(BG_GLOW1_RE);
@@ -653,7 +657,7 @@ document.getElementById("bg-load").addEventListener("click", async ()=>{
     document.getElementById("bg-glow2").value = rgbStrToHex(g2[1]);
     document.getElementById("bg-base").value = bg[1];
     refreshBgPreview();
-    setStatus("bg-status", "Valori attuali caricati \u2713", "ok");
+    setStatus("bg-status", "Valori attuali caricati ✓", "ok");
   }catch(e){
     setStatus("bg-status", e.message, "err");
   }
@@ -663,7 +667,7 @@ document.getElementById("bg-save").addEventListener("click", async ()=>{
   const c1 = document.getElementById("bg-glow1").value;
   const c2 = document.getElementById("bg-glow2").value;
   const cb = document.getElementById("bg-base").value;
-  setStatus("bg-status", "Aggiornamento in corso\u2026", "busy");
+  setStatus("bg-status", "Aggiornamento in corso…", "busy");
   try{
     const { content, sha } = await ghGetFile("index.html");
     if (!BG_GLOW1_RE.test(content) || !BG_GLOW2_RE.test(content) || !BG_BASE_RE.test(content)){
@@ -674,7 +678,7 @@ document.getElementById("bg-save").addEventListener("click", async ()=>{
       .replace(BG_GLOW2_RE, `radial-gradient(ellipse 1000px 560px at 100% 0%, ${hexToRgbaStr(c2, 0.08)}, transparent 55%)`)
       .replace(BG_BASE_RE, `--bg:${cb};`);
     await ghPutFile("index.html", newContent, sha, "Aggiorna sfondo decorativo della Home");
-    setStatus("bg-status", "Sfondo aggiornato \u2713", "ok");
+    setStatus("bg-status", "Sfondo aggiornato ✓", "ok");
   }catch(e){
     setStatus("bg-status", e.message, "err");
   }
@@ -685,7 +689,7 @@ document.getElementById("master-pw-update").addEventListener("click", async ()=>
   const newPw = document.getElementById("master-pw-input").value.trim();
   if (!newPw){ setStatus("master-pw-status", "Scrivi prima una nuova password Master.", "err"); return; }
   if (!CHAR_LIST.length){ setStatus("master-pw-status", "Carica prima l'elenco dei personaggi.", "err"); return; }
-  setStatus("master-pw-status", "Aggiornamento in corso su tutti i file\u2026", "busy");
+  setStatus("master-pw-status", "Aggiornamento in corso su tutti i file…", "busy");
   const hash = await sha256Hex(newPw);
   let okCount = 0, errCount = 0;
   for (const c of CHAR_LIST){

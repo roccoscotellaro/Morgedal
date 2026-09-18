@@ -47,10 +47,10 @@
     text-shadow:0 2px 0 rgba(0,0,0,0.6), 0 0 26px rgba(148,80,216,0.3);
   }
   .hero p{font-family:var(--serif);font-style:italic;color:var(--text-dim);margin:0;font-size:15px;}
- 
+
   .wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(240px,1fr));gap:18px;}
- 
+
   .card{
     display:block;text-decoration:none;color:inherit;
     background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-3));
@@ -75,13 +75,13 @@
   }
   .card .arrow{position:absolute;bottom:16px;right:18px;color:var(--text-faint);font-size:18px;transition:color .15s, transform .15s;}
   .card:hover .arrow{color:var(--gold-bright);transform:translateX(3px);}
- 
+
   .empty-card{
     border:1px dashed var(--border);border-radius:12px;padding:20px;
     display:flex;align-items:center;justify-content:center;text-align:center;
     color:var(--text-faint);font-size:13px;min-height:120px;
   }
- 
+
   .section-title{
     font-family:var(--serif);font-weight:700;letter-spacing:2px;text-transform:uppercase;
     font-size:15px;color:var(--text-dim);margin:0 0 14px;padding-bottom:8px;
@@ -120,7 +120,7 @@
 </style>
 </head>
 <body>
- 
+
 <div class="hero">
   <h1>Morgedal</h1>
   <p>Le schede dei personaggi del gruppo</p>
@@ -133,7 +133,7 @@
     <span class="google-status-home" id="google-status-home"></span>
   </div>
 </div>
- 
+
 <div class="wrap">
   <h2 class="section-title">Principali</h2>
   <div class="grid" id="grid-principali"></div>
@@ -149,7 +149,7 @@
     <a class="master-link" href="admin.html">MASTER 🔒</a>
   </div>
 </div>
- 
+
 <script>
 /* ============================================================
    ELENCO PERSONAGGI
@@ -204,16 +204,18 @@ document.getElementById("grid-principali").innerHTML =
 document.getElementById("grid-viaggiatori").innerHTML =
   viaggiatori.map(cardHtml).join("") + `<div class="empty-card">+ Nuovo personaggio<br>(aggiungilo all'elenco CHARACTERS)</div>`;
 
-/* Indicatore modalità Master (condiviso con tutte le schede tramite localStorage) */
+/* Indicatore modalità Master (condiviso con tutte le schede tramite sessionStorage:
+   dura una sessione/tab di navigazione, non sopravvive alla chiusura del browser). */
 const MASTER_UNLOCK_KEY = "morgedal-master-unlocked";
+try{ localStorage.removeItem(MASTER_UNLOCK_KEY); }catch(e){} // rimuove eventuale vecchia chiave legacy
 function refreshMasterBadge(){
   const badge = document.getElementById("master-badge");
   let unlocked = false;
-  try{ unlocked = localStorage.getItem(MASTER_UNLOCK_KEY) === "1"; }catch(e){}
+  try{ unlocked = sessionStorage.getItem(MASTER_UNLOCK_KEY) === "1"; }catch(e){}
   badge.classList.toggle("show", unlocked);
 }
 document.getElementById("master-logout").addEventListener("click", ()=>{
-  try{ localStorage.removeItem(MASTER_UNLOCK_KEY); }catch(e){}
+  try{ sessionStorage.removeItem(MASTER_UNLOCK_KEY); }catch(e){}
   refreshMasterBadge();
 });
 refreshMasterBadge();
@@ -349,6 +351,6 @@ document.addEventListener("click", (e)=>{
   ensureGoogleSignInThenGo(href);
 });
 </script>
- 
+
 </body>
 </html>
