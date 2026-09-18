@@ -1659,13 +1659,31 @@ function initImageLightbox(){
 
 /* allowZoom: aggiunge un pulsante di ingrandimento (modal) accanto alla miniatura.
    Usato solo per le immagini dell'Equipaggiamento, non per l'Inventario. */
-function makeImagePicker(currentSrc, onPick, onRemove, allowZoom, zoomLabel){
+function makeImagePicker(currentSrc, onPick, onRemove, allowZoom, zoomLabel, readOnly){
   const wrap = document.createElement("div");
   wrap.className = "img-row";
 
   const thumb = document.createElement(currentSrc ? "img" : "div");
-  if (currentSrc){ thumb.src = currentSrc; thumb.className = "thumb"; thumb.title = "Clic per cambiare immagine"; }
-  else { thumb.className = "thumb-placeholder"; thumb.textContent = "+"; thumb.title = "Aggiungi immagine"; }
+  if (currentSrc){ thumb.src = currentSrc; thumb.className = "thumb"; }
+  else { thumb.className = "thumb-placeholder"; }
+
+  if (readOnly){
+    /* Player read-only (equip/inventario): solo visualizzazione. Nessun
+       modo di aggiungere, cambiare o rimuovere l'immagine. Se c'è
+       un'immagine, il clic sulla miniatura apre il lightbox; altrimenti
+       un placeholder neutro senza alcuna interattività. */
+    if (currentSrc){
+      thumb.title = "Clic per ingrandire";
+      thumb.addEventListener("click", ()=> openImageLightbox(currentSrc, zoomLabel));
+    } else {
+      thumb.title = "Nessuna immagine";
+    }
+    wrap.appendChild(thumb);
+    return wrap;
+  }
+
+  if (currentSrc){ thumb.title = "Clic per cambiare immagine"; }
+  else { thumb.textContent = "+"; thumb.title = "Aggiungi immagine"; }
 
   const input = document.createElement("input");
   input.type = "file"; input.accept = "image/*"; input.className = "file-input-hidden";
@@ -1901,6 +1919,7 @@ function renderScheda(){
   bindRich();
 
   const hpCur = document.getElementById("hp-cur"), hpMax = document.getElementById("hp-max"), hpTemp = document.getElementById("hp-temp");
+  hpMax.readOnly = !isMasterEditorOn();
   function refreshHp(){
     let cur = parseInt(hpCur.value||"0",10), max = parseInt(hpMax.value||"0",10);
     if (cur > max) cur = max;
@@ -2030,9 +2049,22 @@ function masterSetField(cat, idx, field, val){
     item[field] = val;
   }
 }
+function masterBoxHeight(cat, idx){
+  const item = STATE[cat][idx];
+  return (MASTER_ARR_SHAPE_CATS.has(cat) ? item[4] : item.h) || null;
+}
+function setMasterBoxHeight(cat, idx, h){
+  const item = STATE[cat][idx];
+  if (MASTER_ARR_SHAPE_CATS.has(cat)) item[4] = h; else item.h = h;
+  queueSave();
+}
 function masterBoxStyle(cat, idx){
   const w = masterBoxWidth(cat, idx);
-  return (w && w > 1) ? ` style="grid-column:span ${w};"` : "";
+  const h = masterBoxHeight(cat, idx);
+  let style = "";
+  if (w && w > 1) style += `grid-column:span ${w};`;
+  if (h) style += `height:${h}px;`;
+  return ` data-master-box="${cat}-${idx}"${style ? ` style="${style}"` : ""}`;
 }
 function masterToolbarHtml(cat, idx, opts){
   opts = opts || {};
@@ -2104,6 +2136,23 @@ function bindMasterControls(root){
     sel.addEventListener("change", ()=>{
       const [cat, idx] = sel.dataset.masterWidth.split("-");
       setMasterBoxWidth(cat, Number(idx), Number(sel.value));
+    });
+  });
+  root.querySelectorAll('[data-master-box]').forEach(el=>{
+    el.addEventListener("pointerdown", (e)=>{
+      const rect = el.getBoundingClientRect();
+      const nearRight = (rect.right - e.clientX) < 20;
+      const nearBottom = (rect.bottom - e.clientY) < 20;
+      if (!(nearRight && nearBottom)) return;
+      const [cat, idx] = el.dataset.masterBox.split("-");
+      const onUp = ()=>{
+        document.removeEventListener("pointerup", onUp);
+        const h = Math.round(el.getBoundingClientRect().height);
+        if (h && h !== masterBoxHeight(cat, Number(idx))){
+          setMasterBoxHeight(cat, Number(idx), h);
+        }
+      };
+      document.addEventListener("pointerup", onUp);
     });
   });
   root.querySelectorAll('[data-master-create]').forEach(btn=>{
@@ -2279,6 +2328,7 @@ function renderPoteri(){
     });
   });
   document.querySelectorAll('[data-slotmax]').forEach(inp=>{
+    inp.readOnly = !isMasterEditorOn();
     inp.addEventListener("input", ()=>{
       const i = inp.dataset.slotmax;
       STATE.slots[i].max = Math.max(0, parseInt(inp.value||"0",10));
@@ -2356,7 +2406,9 @@ function renderEquip(){
   renderEquipSlots();
   renderInvTable();
 
-  document.getElementById("inv-cap").addEventListener("input", (e)=>{
+  const invCapInp = document.getElementById("inv-cap");
+  invCapInp.readOnly = !isMasterEditorOn();
+  invCapInp.addEventListener("input", (e)=>{
     STATE.capacitaMax = parseFloat(e.target.value||"0");
     refreshInvTotal(); queueSave();
   });
@@ -2380,7 +2432,8 @@ function renderEquipSlots(){
       (dataUrl)=>{ STATE.equipImages[key] = dataUrl; renderEquipSlots(); queueSave(); },
       ()=>{ STATE.equipImages[key] = ""; renderEquipSlots(); queueSave(); },
       true,
-      label
+      label,
+      !isMasterEditorOn()
     );
     box.appendChild(picker);
     grid.appendChild(box);
@@ -2412,7 +2465,10 @@ function renderInvTable(){
     const picker = makeImagePicker(
       it[4] || "",
       (dataUrl)=>{ STATE.inventario[i][4] = dataUrl; renderInvTable(); queueSave(); },
-      ()=>{ STATE.inventario[i][4] = ""; renderInvTable(); queueSave(); }
+      ()=>{ STATE.inventario[i][4] = ""; renderInvTable(); queueSave(); },
+      true,
+      it[1] || "Oggetto",
+      !isMasterEditorOn()
     );
     const lbl = picker.querySelector(".file-btn");
     if (lbl) lbl.remove();
@@ -2565,7 +2621,7 @@ function renderLore(){
   const masterOn = isMasterEditorOn();
   const d = STATE.descrizione;
   const loreHtml = STATE.lore.map((l,i)=>`
-    <div class="subcard">
+    <div class="subcard" data-lore-box="${i}"${l.h ? ` style="height:${l.h}px;"` : ""}>
       ${masterOn ? `<div class="master-toolbar">
         <button type="button" class="master-mini-btn" data-lore-up="${i}" title="Sposta su">\u2191</button>
         <button type="button" class="master-mini-btn" data-lore-down="${i}" title="Sposta gi\u00f9">\u2193</button>
@@ -2693,7 +2749,38 @@ function renderLore(){
     });
   });
   initPortraitResize();
+  initLoreResize();
   bindRich();
+}
+
+/* Editor Master: ridimensionamento verticale persistente dei riquadri di
+   Info & Carattere (STATE.lore[i].h), sullo stesso principio gi\u00e0 usato
+   per i Ritratti: il resize nativo CSS (angolo in basso a destra) resta
+   disponibile solo in modalit\u00e0 Master; al rilascio del trascinamento
+   l'altezza raggiunta viene salvata in STATE.lore[i].h e resta quindi
+   persistente tra render/reload/export/import (non un semplice resize CSS
+   volatile). Se h \u00e8 assente il riquadro mantiene l'aspetto originale.
+   Il giocatore non vede mai la maniglia di resize. */
+function initLoreResize(){
+  document.querySelectorAll('.subcard[data-lore-box]').forEach(el=>{
+    el.addEventListener("pointerdown", (e)=>{
+      if (!isMasterEditorOn()) return;
+      const rect = el.getBoundingClientRect();
+      const nearRight = (rect.right - e.clientX) < 20;
+      const nearBottom = (rect.bottom - e.clientY) < 20;
+      if (!(nearRight && nearBottom)) return;
+      const idx = el.dataset.loreBox;
+      const onUp = ()=>{
+        document.removeEventListener("pointerup", onUp);
+        const h = Math.round(el.getBoundingClientRect().height);
+        if (h && STATE.lore[idx] && h !== STATE.lore[idx].h){
+          STATE.lore[idx].h = h;
+          queueSave();
+        }
+      };
+      document.addEventListener("pointerup", onUp);
+    });
+  });
 }
 
 /* Editor Master: ridimensionamento verticale persistente dei ritratti.
