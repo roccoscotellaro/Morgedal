@@ -2042,6 +2042,21 @@ function setMasterBoxHeight(cat, idx, h){
   if (MASTER_ARR_SHAPE_CATS.has(cat)) item[4] = h; else item.h = h;
   queueSave();
 }
+/* Al rilascio di un resize verticale del Master, se l'altezza scelta
+   manualmente è inferiore al minimo necessario a mostrare tutto il
+   contenuto (produrrebbe uno scroll interno), il box viene espanso
+   automaticamente al minimo richiesto: nessuna scrollbar interna, nessun
+   testo tagliato. Restituisce l'altezza EFFETTIVA (px, intera) da salvare
+   nello STATE, che quindi non è mai inferiore a quella richiesta dal
+   contenuto. Se l'altezza scelta è già sufficiente resta invariata. */
+function growBoxToFitContent(el){
+  let h = Math.round(el.getBoundingClientRect().height);
+  if (el.scrollHeight > el.clientHeight){
+    h = Math.round(h + (el.scrollHeight - el.clientHeight));
+    el.style.height = h + "px";
+  }
+  return h;
+}
 function masterBoxStyle(cat, idx){
   const w = masterBoxWidth(cat, idx);
   const h = masterBoxHeight(cat, idx);
@@ -2131,7 +2146,7 @@ function bindMasterControls(root){
       const [cat, idx] = el.dataset.masterBox.split("-");
       const onUp = ()=>{
         document.removeEventListener("pointerup", onUp);
-        const h = Math.round(el.getBoundingClientRect().height);
+        const h = growBoxToFitContent(el);
         if (h && h !== masterBoxHeight(cat, Number(idx))){
           setMasterBoxHeight(cat, Number(idx), h);
         }
@@ -2748,7 +2763,7 @@ function initLoreResize(){
       const idx = el.dataset.loreBox;
       const onUp = ()=>{
         document.removeEventListener("pointerup", onUp);
-        const h = Math.round(el.getBoundingClientRect().height);
+        const h = growBoxToFitContent(el);
         if (h && STATE.lore[idx] && h !== STATE.lore[idx].h){
           STATE.lore[idx].h = h;
           queueSave();
